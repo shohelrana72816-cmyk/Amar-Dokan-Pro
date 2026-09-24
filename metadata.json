@@ -1,0 +1,6 @@
+{
+  "name": "Amar Dokan Pro - Business Management & POS",
+  "description": "All-in-one smart business management, POS, inventory, multi-branch, accounts, due ledger, and invoice system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
