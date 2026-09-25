@@ -43,6 +43,14 @@ export interface Product {
   batchNumber?: string;
   createdAt: string;
   updatedAt: string;
+  isActive?: boolean; // For soft delete protection
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug?: string;
+  description?: string;
 }
 
 export interface SaleItem {
@@ -61,6 +69,7 @@ export interface SaleItem {
 export interface SalePayment {
   method: PaymentMethod;
   amount: number;
+  accountId?: string;
   accountName?: string;
   trxId?: string;
 }
@@ -84,8 +93,11 @@ export interface Sale {
   payments: SalePayment[];
   servedBy: string;
   branchId: string;
-  status: 'paid' | 'due' | 'partial' | 'returned';
+  status: 'paid' | 'due' | 'partial' | 'returned' | 'voided';
   notes?: string;
+  refundedAmount?: number;
+  refundReason?: string;
+  refundedAt?: string;
 }
 
 export interface SaleReturn {
@@ -294,4 +306,27 @@ export interface ShopSettings {
   businessType: BusinessType;
   language: 'bn' | 'en';
   uiMode: 'easy' | 'advanced';
+}
+
+export interface AuditLog {
+  id: string;
+  date: string;
+  userRole: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  details: string;
+  branchId?: string;
+}
+
+export interface AccountTransaction {
+  id: string;
+  accountId: string;
+  accountName: string;
+  date: string;
+  type: 'sale_payment' | 'purchase_payment' | 'customer_payment' | 'supplier_payment' | 'expense' | 'salary' | 'transfer_in' | 'transfer_out' | 'refund' | 'adjustment';
+  amount: number;
+  balanceAfter: number;
+  referenceId?: string;
+  note?: string;
 }

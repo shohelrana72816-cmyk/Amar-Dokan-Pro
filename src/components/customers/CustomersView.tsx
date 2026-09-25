@@ -14,6 +14,9 @@ import {
   History,
   Phone,
   MapPin,
+  Edit,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface CustomersViewProps {
@@ -22,7 +25,7 @@ interface CustomersViewProps {
 }
 
 export const CustomersView: React.FC<CustomersViewProps> = ({ isAddModalOpen: propIsAddModalOpen, onCloseAddModal: propOnCloseAddModal }) => {
-  const { customers, customerTransactions, addCustomer, updateCustomer, collectCustomerDue, accounts, settings } = useApp();
+  const { customers, customerTransactions, addCustomer, updateCustomer, deleteCustomer, isAdmin, collectCustomerDue, accounts, settings } = useApp();
   const isBn = settings.language === 'bn';
   const lang = settings.language;
 
@@ -32,6 +35,10 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ isAddModalOpen: pr
   // Add / Edit Modal
   const [isModalOpen, setIsModalOpen] = useState(propIsAddModalOpen || false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+
+  // Delete Customer State
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [deleteCustomerError, setDeleteCustomerError] = useState<string | null>(null);
 
   // Due Collection Modal
   const [collectingCustomer, setCollectingCustomer] = useState<Customer | null>(null);
@@ -302,6 +309,25 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ isAddModalOpen: pr
                       >
                         <FileText className="w-4 h-4" />
                       </button>
+                      <button
+                        onClick={() => handleOpenEdit(customer)}
+                        className="p-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors"
+                        title={isBn ? 'তথ্য পরিবর্তন / সম্পাদনা' : 'Edit Customer'}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            setCustomerToDelete(customer);
+                            setDeleteCustomerError(null);
+                          }}
+                          className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                          title={isBn ? 'কাস্টমার মুছে ফেলুন (অ্যাডমিন অনলি)' : 'Delete Customer (Admin Only)'}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -621,6 +647,110 @@ export const CustomersView: React.FC<CustomersViewProps> = ({ isAddModalOpen: pr
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Delete Customer Confirmation Modal */}
+      {customerToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-xl border border-rose-200 w-full max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">
+                    {isBn ? 'Delete Customer? (কাস্টমার মুছে ফেলবেন?)' : 'Delete Customer?'}
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    {customerToDelete.name} ({customerToDelete.mobile})
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCustomerToDelete(null)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-700">
+              <p className="font-medium text-slate-800">
+                {isBn
+                  ? 'আপনি কি নিশ্চিত এই কাস্টমারের রেকর্ডটি স্থায়ীভাবে মুছে ফেলতে চান?'
+                  : 'Are you sure you want to permanently delete this customer record?'}
+              </p>
+
+              {customerToDelete.currentDue > 0 ? (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1 text-amber-900 text-xs">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-800">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>{isBn ? 'সতর্কতা: বকেয়া পাওনা বিদ্যমান!' : 'Warning: Outstanding Due Balance!'}</span>
+                  </div>
+                  <p>
+                    {isBn
+                      ? `এই কাস্টমারের কাছে বর্তমানে ৳${customerToDelete.currentDue} বকেয়া রয়েছে। বকেয়া আদায় বা সমন্বয় না করে ডিলিট করা যাবে না।`
+                      : `This customer has an outstanding due balance of ৳${customerToDelete.currentDue}. Please clear or adjust the due balance before deletion.`}
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-700 text-xs">
+                  <div className="flex justify-between">
+                    <span>{isBn ? 'মোট কেনাকাটা' : 'Total Purchases'}:</span>
+                    <span className="font-mono-num font-bold">{formatCurrency(customerToDelete.totalPurchase, lang)}</span>
+                  </div>
+                  <div className="flex justify-between text-emerald-700">
+                    <span>{isBn ? 'বর্তমান বকেয়া' : 'Current Due'}:</span>
+                    <span className="font-mono-num font-bold">০ (পরিশোধিত)</span>
+                  </div>
+                  <p className="pt-1 text-[11px] text-slate-500">
+                    {isBn
+                      ? 'অ্যাকশনটি অডিট লগে রেকর্ড করা হবে।'
+                      : 'This action will be recorded in the audit logs.'}
+                  </p>
+                </div>
+              )}
+
+              {deleteCustomerError && (
+                <div className="p-2 bg-rose-50 text-rose-700 rounded-lg text-xs font-semibold">
+                  {deleteCustomerError}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              <button
+                type="button"
+                onClick={() => setCustomerToDelete(null)}
+                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+              >
+                {isBn ? 'Cancel (বাতিল)' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                disabled={customerToDelete.currentDue > 0}
+                onClick={() => {
+                  const res = deleteCustomer(customerToDelete.id);
+                  if (res.success) {
+                    setCustomerToDelete(null);
+                  } else {
+                    setDeleteCustomerError(res.message || 'Error deleting customer');
+                  }
+                }}
+                className={`px-4 py-1.5 text-xs font-bold text-white rounded-lg flex items-center gap-1.5 shadow-xs transition-colors ${
+                  customerToDelete.currentDue > 0
+                    ? 'bg-slate-300 cursor-not-allowed'
+                    : 'bg-rose-600 hover:bg-rose-700'
+                }`}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'Delete Customer (মুছে ফেলুন)' : 'Delete Customer'}</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -636,3 +636,26 @@ export const initialStockMovements: StockMovement[] = [
     note: 'POS বিক্রি',
   },
 ];
+
+export const initialCategories = [
+  { id: 'cat-clothing', name: 'Clothing', slug: 'clothing' },
+  { id: 'cat-grocery', name: 'Grocery', slug: 'grocery' },
+  { id: 'cat-electronics', name: 'Electronics', slug: 'electronics' },
+  { id: 'cat-pharmacy', name: 'Pharmacy', slug: 'pharmacy' },
+  { id: 'cat-footwear', name: 'Footwear', slug: 'footwear' },
+  { id: 'cat-cosmetics', name: 'Cosmetics', slug: 'cosmetics' },
+  { id: 'cat-general', name: 'General', slug: 'general' },
+];
+
+export const initialAuditLogs = [
+  {
+    id: 'log-init',
+    date: new Date(Date.now() - 24 * 3600000).toISOString(),
+    userRole: 'owner',
+    action: 'SYSTEM_STARTUP',
+    entityType: 'system',
+    entityId: 'sys-1',
+    details: 'আমার দোকান প্রো সিস্টেম সক্রিয় হয়েছে।',
+    branchId: 'branch-1',
+  },
+];

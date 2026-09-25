@@ -36,15 +36,16 @@ export const InventoryView: React.FC = () => {
   const [tfNote, setTfNote] = useState('');
 
   // Calculations
-  const totalStockUnits = products.reduce((sum, p) => sum + p.currentStock, 0);
-  const totalCostValuation = products.reduce((sum, p) => sum + (p.currentStock * p.purchasePrice), 0);
-  const totalRetailValuation = products.reduce((sum, p) => sum + (p.currentStock * p.salePrice), 0);
+  const activeProducts = products.filter(p => p.isActive !== false);
+  const totalStockUnits = activeProducts.reduce((sum, p) => sum + p.currentStock, 0);
+  const totalCostValuation = activeProducts.reduce((sum, p) => sum + (p.currentStock * p.purchasePrice), 0);
+  const totalRetailValuation = activeProducts.reduce((sum, p) => sum + (p.currentStock * p.salePrice), 0);
   const potentialProfit = totalRetailValuation - totalCostValuation;
 
-  const lowStockItems = products.filter(p => p.currentStock > 0 && p.currentStock <= p.minStockAlert);
-  const outOfStockItems = products.filter(p => p.currentStock <= 0);
+  const lowStockItems = activeProducts.filter(p => p.currentStock > 0 && p.currentStock <= p.minStockAlert);
+  const outOfStockItems = activeProducts.filter(p => p.currentStock <= 0);
 
-  const displayedProducts = products.filter(p => {
+  const displayedProducts = activeProducts.filter(p => {
     if (filterType === 'low') return p.currentStock > 0 && p.currentStock <= p.minStockAlert;
     if (filterType === 'out') return p.currentStock <= 0;
     return true;

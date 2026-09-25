@@ -39,9 +39,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const isBn = settings.language === 'bn';
   const lang = settings.language;
 
-  // Filter Today's records
+  // Filter Today's records (excluding voided and returned sales)
   const todayStr = new Date().toISOString().slice(0, 10);
-  const todaySales = sales.filter(s => s.date.slice(0, 10) === todayStr);
+  const todaySales = sales.filter(s => s.date.slice(0, 10) === todayStr && s.status !== 'voided' && s.status !== 'returned');
   const todayPurchases = purchases.filter(p => p.date.slice(0, 10) === todayStr);
   const todayExpenses = expenses.filter(e => e.date.slice(0, 10) === todayStr);
 

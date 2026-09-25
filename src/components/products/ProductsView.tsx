@@ -6,14 +6,15 @@ import {
   Package,
   Plus,
   Search,
-  Filter,
   Barcode,
   Edit2,
   Trash2,
   X,
   AlertTriangle,
-  Printer,
-  Sparkles,
+  RotateCcw,
+  Check,
+  FolderPlus,
+  Archive,
 } from 'lucide-react';
 
 interface ProductsViewProps {
@@ -22,7 +23,7 @@ interface ProductsViewProps {
 }
 
 export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: propIsAddModalOpen, onCloseAddModal: propOnCloseAddModal }) => {
-  const { products, addProduct, updateProduct, deleteProduct, settings } = useApp();
+  const { products, categories, addCategory, addProduct, updateProduct, deleteProduct, isAdmin, settings } = useApp();
   const isBn = settings.language === 'bn';
   const lang = settings.language;
 
@@ -30,11 +31,14 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [stockFilter, setStockFilter] = useState<'all' | 'normal' | 'low' | 'out'>('all');
+  const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | 'all'>('active');
 
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(propIsAddModalOpen || false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [barcodeModalProduct, setBarcodeModalProduct] = useState<Product | null>(null);
+  const [showNewCatInput, setShowNewCatInput] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
 
   // Sync prop changes
   React.useEffect(() => {
@@ -46,6 +50,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
+    setShowNewCatInput(false);
     if (propOnCloseAddModal) propOnCloseAddModal();
   };
 
@@ -87,7 +92,8 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
     const randomCode = `PRD-${Math.floor(100 + Math.random() * 900)}`;
     setCode(randomCode);
     setBarcode(`894${Math.floor(100000 + Math.random() * 900000)}`);
-    setCategory(settings.businessType === 'grocery' ? 'Grocery' : (settings.businessType === 'electronics' ? 'Electronics' : 'Clothing'));
+    const defaultCat = categories.length > 0 ? categories[0].name : 'Clothing';
+    setCategory(defaultCat);
     setSubcategory('');
     setBrand('');
     setDescription('');
@@ -103,6 +109,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
     setWarrantyPeriod('');
     setExpiryDate('');
     setBatchNumber('');
+    setShowNewCatInput(false);
     setIsModalOpen(true);
   };
 
@@ -129,14 +136,51 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
     setWarrantyPeriod(p.warrantyPeriod || '');
     setExpiryDate(p.expiryDate || '');
     setBatchNumber(p.batchNumber || '');
+    setShowNewCatInput(false);
     setIsModalOpen(true);
+  };
+
+  // Quick Add Category from form
+  const handleCreateCategory = () => {
+    if (!newCatName.trim()) return;
+    const cat = addCategory({ name: newCatName.trim() });
+    setCategory(cat.name);
+    setNewCatName('');
+    setShowNewCatInput(false);
   };
 
   // Submit Product
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !purchasePrice || !salePrice) {
+    const cleanName = name.trim();
+    const cleanCode = code.trim();
+    const cleanBarcode = barcode.trim();
+
+    if (!cleanName || purchasePrice === '' || salePrice === '') {
       alert(isBn ? 'নাম, ক্রয়মূল্য এবং বিক্রয়মূল্য দেওয়া আবশ্যক!' : 'Name, purchase price, and sale price are required!');
+      return;
+    }
+
+    if (Number(salePrice) < 0 || Number(purchasePrice) < 0) {
+      alert(isBn ? 'মূল্য ঋণাত্মক হতে পারে না!' : 'Prices cannot be negative!');
+      return;
+    }
+
+    // Duplicate SKU check
+    const isSkuTaken = products.some(
+      p => p.id !== editingProduct?.id && p.code.toLowerCase() === cleanCode.toLowerCase()
+    );
+    if (isSkuTaken) {
+      alert(isBn ? `SKU '${cleanCode}' ইতোমধ্যেই অন্য পণ্যে ব্যবহৃত হচ্ছে! অনুগ্রহ করে ভিন্ন SKU দিন।` : `SKU '${cleanCode}' is already taken!`);
+      return;
+    }
+
+    // Duplicate Barcode check
+    const isBarcodeTaken = products.some(
+      p => p.id !== editingProduct?.id && p.barcode.toLowerCase() === cleanBarcode.toLowerCase()
+    );
+    if (isBarcodeTaken) {
+      alert(isBn ? `বারকোড '${cleanBarcode}' ইতোমধ্যেই অন্য পণ্যে ব্যবহৃত হচ্ছে!` : `Barcode '${cleanBarcode}' is already used!`);
       return;
     }
 
@@ -145,9 +189,9 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
       : Number(currentStock) || 0;
 
     const productPayload = {
-      name: name.trim(),
-      code: code.trim() || `PRD-${Date.now().toString().slice(-4)}`,
-      barcode: barcode.trim() || `${Date.now().toString().slice(-8)}`,
+      name: cleanName,
+      code: cleanCode || `PRD-${Date.now().toString().slice(-4)}`,
+      barcode: cleanBarcode || `${Date.now().toString().slice(-8)}`,
       category,
       subcategory: subcategory.trim() || undefined,
       brand: brand.trim() || undefined,
@@ -165,6 +209,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
       warrantyPeriod: warrantyPeriod.trim() || undefined,
       expiryDate: expiryDate || undefined,
       batchNumber: batchNumber.trim() || undefined,
+      isActive: editingProduct ? editingProduct.isActive !== false : true,
     };
 
     if (editingProduct) {
@@ -181,7 +226,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
     setVariants(prev => [
       ...prev,
       {
-        id: `v-${Date.now()}`,
+        id: `v-${Date.now()}-${prev.length + 1}`,
         color: '',
         size: '',
         sku: `${code}-${prev.length + 1}`,
@@ -194,15 +239,21 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
     setVariants(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // Filter products
+  // Combined Category List
   const categoriesList = useMemo(() => {
     const set = new Set<string>();
+    categories.forEach(c => c.name && set.add(c.name));
     products.forEach(p => p.category && set.add(p.category));
     return Array.from(set);
-  }, [products]);
+  }, [categories, products]);
 
+  // Filter products
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
+      // Status filter (active, inactive, all)
+      if (statusFilter === 'active' && p.isActive === false) return false;
+      if (statusFilter === 'inactive' && p.isActive !== false) return false;
+
       const matchesSearch =
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -218,7 +269,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
 
       return matchesSearch && matchesCat && matchesStock;
     });
-  }, [products, searchQuery, selectedCategory, stockFilter]);
+  }, [products, searchQuery, selectedCategory, stockFilter, statusFilter]);
 
   return (
     <div className="space-y-4">
@@ -231,7 +282,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
             {isBn
-              ? `মোট পণ্য: ${toBnNumber(products.length)} টি · নতুন পণ্য যোগ করলে সাথে সাথে POS ও স্টক তালিকায় দেখা যাবে`
+              ? `মোট পণ্য: ${toBnNumber(products.length)} টি · নতুন পণ্য যোগ করলে সাথে সাথে POS, স্টক ও ইনভয়েস সিস্টেমে দেখা যাবে`
               : `Total: ${products.length} products · Instantly available for POS sales & stock`}
           </p>
         </div>
@@ -286,6 +337,18 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
           <option value="low">{isBn ? 'কম স্টক (Low Stock)' : 'Low Stock'}</option>
           <option value="out">{isBn ? 'আউট অব স্টক' : 'Out of Stock'}</option>
         </select>
+
+        {/* Status Filter (Active / Inactive) */}
+        <select
+          aria-label={isBn ? 'স্ট্যাটাস' : 'Status'}
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as any)}
+          className="w-full sm:w-auto py-1.5 px-3 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium text-slate-700"
+        >
+          <option value="active">{isBn ? 'সক্রিয় পণ্য' : 'Active Products'}</option>
+          <option value="inactive">{isBn ? 'আর্কাইভ/নিষ্ক্রিয়' : 'Archived / Inactive'}</option>
+          <option value="all">{isBn ? 'সকল পণ্য' : 'All'}</option>
+        </select>
       </div>
 
       {/* Product Table */}
@@ -312,10 +375,20 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                   : 0;
 
                 return (
-                  <tr key={product.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr
+                    key={product.id}
+                    className={`transition-colors ${product.isActive === false ? 'bg-slate-50/60 opacity-60' : 'hover:bg-slate-50/80'}`}
+                  >
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-slate-900 leading-tight">
-                        {product.name}
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-slate-900 leading-tight">
+                          {product.name}
+                        </span>
+                        {product.isActive === false && (
+                          <span className="text-[10px] bg-slate-200 text-slate-700 px-1 py-0.2 rounded font-medium">
+                            {isBn ? 'আর্কাইভড' : 'Archived'}
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-slate-600 flex items-center gap-2 mt-0.5">
                         {product.brand && <span>ব্র্যান্ড: {product.brand}</span>}
@@ -376,7 +449,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                         <button
                           onClick={() => setBarcodeModalProduct(product)}
                           className="p-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
-                          title={isBn ? 'বারকোড প্রিন্ট করুন' : 'Print Barcode'}
+                          title={isBn ? 'বারকোড দেখুন' : 'Barcode'}
                         >
                           <Barcode className="w-4 h-4" />
                         </button>
@@ -387,17 +460,29 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(isBn ? `আপনি কি '${product.name}' মুছে ফেলতে চান?` : `Delete product '${product.name}'?`)) {
-                              deleteProduct(product.id);
-                            }
-                          }}
-                          className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
-                          title={isBn ? 'মুছুন' : 'Delete'}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {isAdmin && (
+                          product.isActive === false ? (
+                            <button
+                              onClick={() => updateProduct(product.id, { isActive: true })}
+                              className="p-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors"
+                              title={isBn ? 'পুনরায় সক্রিয় করুন' : 'Reactivate'}
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                if (confirm(isBn ? `আপনি কি '${product.name}' মুছে/আর্কাইভ করতে চান?` : `Archive/Delete '${product.name}'?`)) {
+                                  deleteProduct(product.id);
+                                }
+                              }}
+                              className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                              title={isBn ? 'মুছুন/আর্কাইভ' : 'Delete/Archive'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -430,6 +515,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                 </span>
               </h3>
               <button
+                type="button"
                 onClick={closeModal}
                 className="text-slate-400 hover:text-slate-600 p-1 rounded-md"
               >
@@ -473,7 +559,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. মেনস প্রিমিয়াম কটন শার্ট"
+                    placeholder="e.g. টেস্ট প্রোডাক্ট (Test Product)"
                     className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
@@ -487,7 +573,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                     required
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="SHIRT-001"
+                    placeholder="TEST-001"
                     className="w-full p-2 border border-slate-200 rounded-lg font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
@@ -507,16 +593,49 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                 </div>
 
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    {isBn ? 'ক্যাটাগরি' : 'Category'}
-                  </label>
-                  <input
-                    type="text"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    placeholder="Clothing, Grocery, etc."
-                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-                  />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-medium text-slate-700">
+                      {isBn ? 'ক্যাটাগরি *' : 'Category *'}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewCatInput(prev => !prev)}
+                      className="text-[11px] text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-0.5"
+                    >
+                      <FolderPlus className="w-3 h-3" />
+                      <span>{showNewCatInput ? (isBn ? 'তালিকা' : 'List') : (isBn ? '+ নতুন ক্যাটাগরি' : '+ New Cat')}</span>
+                    </button>
+                  </div>
+
+                  {showNewCatInput ? (
+                    <div className="flex gap-1">
+                      <input
+                        type="text"
+                        value={newCatName}
+                        onChange={(e) => setNewCatName(e.target.value)}
+                        placeholder={isBn ? 'নতুন ক্যাটাগরির নাম...' : 'New category name...'}
+                        className="flex-1 p-2 border border-emerald-300 rounded-lg focus:outline-none text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleCreateCategory}
+                        className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold text-xs"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      aria-label={isBn ? 'ক্যাটাগরি' : 'Category'}
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white font-medium"
+                    >
+                      {categoriesList.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div>
@@ -527,7 +646,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                     type="text"
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
-                    placeholder="e.g. Aarong, Samsung, Teer"
+                    placeholder="e.g. Apex, Samsung, Teer"
                     className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
@@ -549,7 +668,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                       min="0"
                       value={purchasePrice}
                       onChange={(e) => setPurchasePrice(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="500"
+                      placeholder="100"
                       className="w-full p-2 border border-slate-200 rounded-lg font-mono-num focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white"
                     />
                   </div>
@@ -564,7 +683,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                       min="0"
                       value={salePrice}
                       onChange={(e) => setSalePrice(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="850"
+                      placeholder="150"
                       className="w-full p-2 border border-slate-200 rounded-lg font-mono-num font-bold text-emerald-800 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white"
                     />
                   </div>
@@ -578,7 +697,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                       min="0"
                       value={wholesalePrice}
                       onChange={(e) => setWholesalePrice(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="750"
+                      placeholder="130"
                       className="w-full p-2 border border-slate-200 rounded-lg font-mono-num focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white"
                     />
                   </div>
@@ -604,214 +723,156 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                 </div>
               </div>
 
-              {/* Stock Section */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    {isBn ? 'প্রারম্ভিক স্টক (Opening Stock)' : 'Opening Stock'}
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    disabled={hasVariants}
-                    value={hasVariants ? variants.reduce((s, v) => s + (Number(v.stock) || 0), 0) : currentStock}
-                    onChange={(e) => setCurrentStock(e.target.value === '' ? '' : Number(e.target.value))}
-                    className={`w-full p-2 border border-slate-200 rounded-lg font-mono-num focus:ring-1 focus:ring-emerald-500 focus:outline-none ${
-                      hasVariants ? 'bg-slate-100 text-slate-500' : 'bg-white'
-                    }`}
-                  />
-                  {hasVariants && (
-                    <span className="text-[10px] text-blue-600 mt-0.5 block">
-                      ভ্যারিয়েন্টগুলোর স্টক থেকে স্বয়ংক্রিয় হিসাব করা হবে
-                    </span>
-                  )}
+              {/* Stock Details */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                <span className="font-bold text-slate-800 block">
+                  {isBn ? 'স্টক ব্যবস্থাপনা' : 'Stock Management'}
+                </span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                      {isBn ? 'প্রারম্ভিক / বর্তমান স্টক *' : 'Opening / Current Stock *'}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      disabled={hasVariants}
+                      value={hasVariants ? variants.reduce((s, v) => s + (Number(v.stock) || 0), 0) : currentStock}
+                      onChange={(e) => setCurrentStock(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="20"
+                      className="w-full p-2 border border-slate-200 rounded-lg font-mono-num font-bold focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white disabled:bg-slate-100"
+                    />
+                    {hasVariants && (
+                      <span className="text-[10px] text-blue-600 mt-0.5 block">
+                        {isBn ? 'ভ্যারিয়েন্ট চালু থাকায় ভ্যারিয়েন্টের স্টক যোগফল গৃহীত হবে' : 'Sum of variant stocks'}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                      {isBn ? 'কম স্টক অ্যালার্ট সীমা' : 'Low Stock Alert'}
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={minStockAlert}
+                      onChange={(e) => setMinStockAlert(Number(e.target.value) || 5)}
+                      placeholder="5"
+                      className="w-full p-2 border border-slate-200 rounded-lg font-mono-num focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    {isBn ? 'ন্যূনতম অ্যালার্ট স্টক (Min Alert)' : 'Low Stock Alert Limit'}
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={minStockAlert}
-                    onChange={(e) => setMinStockAlert(Number(e.target.value) || 5)}
-                    className="w-full p-2 border border-slate-200 rounded-lg font-mono-num focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white"
-                  />
-                </div>
-              </div>
-
-              {/* Clothing Adaptive: Color & Size Variants */}
-              {businessType === 'clothing' && (
-                <div className="p-3 bg-blue-50/50 border border-blue-200 rounded-xl space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-slate-800 block">
-                        {isBn ? 'পোশাকের কালার ও সাইজ ভ্যারিয়েন্ট' : 'Clothing Variants (Color & Size)'}
-                      </span>
-                      <span className="text-[11px] text-slate-600">
-                        {isBn ? 'একটি শার্টের অধীনে Black-M, Black-L, White-M ইত্যাদি রাখতে সক্রিয় করুন' : 'Enable multiple sizes/colors per item'}
-                      </span>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                {/* Clothing Variants Toggle */}
+                {businessType === 'clothing' && (
+                  <div className="pt-2 border-t border-slate-200">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={hasVariants}
                         onChange={(e) => setHasVariants(e.target.checked)}
-                        className="sr-only peer"
+                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                       />
-                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                      <span className="font-semibold text-slate-800 text-xs">
+                        {isBn ? 'রং ও সাইজ ভ্যারিয়েন্ট রয়েছে (Color / Size Variants)' : 'Has Color / Size Variants'}
+                      </span>
                     </label>
-                  </div>
 
-                  {hasVariants && (
-                    <div className="space-y-2 pt-2 border-t border-blue-200">
-                      {variants.map((v, idx) => (
-                        <div key={v.id || idx} className="grid grid-cols-4 gap-2 items-center">
-                          <input
-                            type="text"
-                            placeholder="রঙ (Color e.g. Black)"
-                            value={v.color}
-                            onChange={(e) => {
-                              const updated = [...variants];
-                              updated[idx].color = e.target.value;
-                              setVariants(updated);
-                            }}
-                            className="p-1.5 border border-slate-200 rounded bg-white text-xs"
-                          />
-                          <input
-                            type="text"
-                            placeholder="সাইজ (Size e.g. M, L, 32)"
-                            value={v.size}
-                            onChange={(e) => {
-                              const updated = [...variants];
-                              updated[idx].size = e.target.value;
-                              setVariants(updated);
-                            }}
-                            className="p-1.5 border border-slate-200 rounded bg-white text-xs"
-                          />
-                          <input
-                            type="number"
-                            placeholder="স্টক (Stock)"
-                            value={v.stock}
-                            onChange={(e) => {
-                              const updated = [...variants];
-                              updated[idx].stock = Number(e.target.value) || 0;
-                              setVariants(updated);
-                            }}
-                            className="p-1.5 border border-slate-200 rounded bg-white text-xs font-mono-num"
-                          />
-                          <div className="flex items-center gap-1">
+                    {hasVariants && (
+                      <div className="mt-3 space-y-2 bg-white p-3 rounded-lg border border-slate-200">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[11px] font-bold text-slate-700">
+                            {isBn ? 'ভ্যারিয়েন্ট তালিকা:' : 'Variant Rows:'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={addVariantRow}
+                            className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>{isBn ? 'ভ্যারিয়েন্ট যোগ করুন' : 'Add Variant'}</span>
+                          </button>
+                        </div>
+
+                        {variants.map((v, idx) => (
+                          <div key={v.id || idx} className="grid grid-cols-4 gap-1.5 items-center">
                             <input
                               type="text"
-                              placeholder="SKU"
-                              value={v.sku}
+                              placeholder={isBn ? 'রং (e.g. Black)' : 'Color'}
+                              value={v.color}
                               onChange={(e) => {
-                                const updated = [...variants];
-                                updated[idx].sku = e.target.value;
-                                setVariants(updated);
+                                const val = e.target.value;
+                                setVariants(prev => prev.map((item, i) => i === idx ? { ...item, color: val } : item));
                               }}
-                              className="p-1.5 border border-slate-200 rounded bg-white text-xs font-mono flex-1 min-w-0"
+                              className="p-1.5 border border-slate-200 rounded text-xs"
                             />
-                            {variants.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => removeVariantRow(idx)}
-                                className="p-1 text-rose-500 hover:text-rose-700"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
+                            <input
+                              type="text"
+                              placeholder={isBn ? 'সাইজ (e.g. L, XL)' : 'Size'}
+                              value={v.size}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setVariants(prev => prev.map((item, i) => i === idx ? { ...item, size: val } : item));
+                              }}
+                              className="p-1.5 border border-slate-200 rounded text-xs"
+                            />
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder={isBn ? 'স্টক' : 'Stock'}
+                              value={v.stock}
+                              onChange={(e) => {
+                                const val = Number(e.target.value) || 0;
+                                setVariants(prev => prev.map((item, i) => i === idx ? { ...item, stock: val } : item));
+                              }}
+                              className="p-1.5 border border-slate-200 rounded text-xs font-mono-num"
+                            />
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                placeholder="SKU"
+                                value={v.sku}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setVariants(prev => prev.map((item, i) => i === idx ? { ...item, sku: val } : item));
+                                }}
+                                className="w-full p-1.5 border border-slate-200 rounded text-xs font-mono"
+                              />
+                              {variants.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeVariantRow(idx)}
+                                  className="text-rose-500 hover:text-rose-700 p-1"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-
-                      <button
-                        type="button"
-                        onClick={addVariantRow}
-                        className="text-xs font-medium text-emerald-700 hover:text-emerald-800 flex items-center gap-1 pt-1"
-                      >
-                        <Plus className="w-3 h-3" />
-                        <span>{isBn ? '+ আরও ভ্যারিয়েন্ট যোগ করুন' : '+ Add Another Variant'}</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Electronics Adaptive Fields */}
-              {businessType === 'electronics' && (
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'মডেল নম্বর' : 'Model'}
-                    </label>
-                    <input
-                      type="text"
-                      value={model}
-                      onChange={(e) => setModel(e.target.value)}
-                      placeholder="e.g. SM-A155F"
-                      className="w-full p-2 border border-slate-200 rounded bg-white"
-                    />
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'ওয়ারেন্টি পলিসি' : 'Warranty'}
-                    </label>
-                    <input
-                      type="text"
-                      value={warrantyPeriod}
-                      onChange={(e) => setWarrantyPeriod(e.target.value)}
-                      placeholder="e.g. ১ বছর অফিসিয়াল ওয়ারেন্টি"
-                      className="w-full p-2 border border-slate-200 rounded bg-white"
-                    />
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              {/* Grocery Adaptive Fields */}
-              {businessType === 'grocery' && (
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'মেয়াদোত্তীর্ণের তারিখ (Expiry Date)' : 'Expiry Date'}
-                    </label>
-                    <input
-                      type="date"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      className="w-full p-2 border border-slate-200 rounded bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'ব্যাচ নম্বর (Batch #)' : 'Batch Number'}
-                    </label>
-                    <input
-                      type="text"
-                      value={batchNumber}
-                      onChange={(e) => setBatchNumber(e.target.value)}
-                      placeholder="B-2026-09"
-                      className="w-full p-2 border border-slate-200 rounded bg-white font-mono"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Form Buttons */}
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
+              {/* Modal Action Buttons */}
+              <div className="flex justify-end gap-2 pt-3 border-t">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
+                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
                 >
                   {isBn ? 'বাতিল' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors"
+                  className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs"
                 >
-                  {isBn ? 'সংরক্ষণ করুন' : 'Save Product'}
+                  {editingProduct
+                    ? (isBn ? 'আপডেট সংরক্ষণ করুন' : 'Save Changes')
+                    : (isBn ? 'পণ্য সংরক্ষণ করুন' : 'Save Product')}
                 </button>
               </div>
             </form>
@@ -819,15 +880,14 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
         </div>
       )}
 
-      {/* Barcode Label Print Modal */}
+      {/* Barcode Modal */}
       {barcodeModalProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm p-5 space-y-4">
-            <div className="flex items-center justify-between border-b pb-2">
-              <h3 className="font-bold text-sm text-slate-900">
-                {isBn ? 'বারকোড লেবেল প্রিভিউ' : 'Barcode Label Preview'}
-              </h3>
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm p-5 space-y-4 text-center">
+            <div className="flex justify-between items-center border-b pb-2">
+              <h3 className="font-bold text-sm text-slate-900">{barcodeModalProduct.name}</h3>
               <button
+                type="button"
                 onClick={() => setBarcodeModalProduct(null)}
                 className="text-slate-400 hover:text-slate-600"
               >
@@ -835,39 +895,26 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
               </button>
             </div>
 
-            {/* Printable Label View */}
-            <div className="p-4 bg-white border border-dashed border-slate-300 rounded-xl text-center space-y-1 font-mono">
-              <p className="font-bold text-xs text-slate-900 font-sans">{settings.shopName}</p>
-              <p className="text-[11px] text-slate-800 font-sans truncate max-w-[200px] mx-auto font-medium">
-                {barcodeModalProduct.name}
-              </p>
-              <div className="py-2">
-                {/* Barcode representation */}
-                <div className="text-xl font-bold tracking-widest text-slate-900">
-                  ||| | | ||||| | |||
-                </div>
-                <span className="text-xs text-slate-600 tracking-wider">
-                  {barcodeModalProduct.barcode}
-                </span>
-              </div>
-              <p className="text-sm font-bold text-slate-900 font-mono-num">
-                MRP: {formatCurrency(barcodeModalProduct.salePrice, lang)}
-              </p>
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center space-y-2">
+              <Barcode className="w-24 h-12 text-slate-800" />
+              <span className="font-mono text-sm font-bold tracking-widest text-slate-900">
+                {barcodeModalProduct.barcode}
+              </span>
+              <span className="text-[11px] text-slate-500 font-mono">
+                SKU: {barcodeModalProduct.code}
+              </span>
+              <span className="font-bold text-emerald-700 text-sm font-mono-num">
+                {formatCurrency(barcodeModalProduct.salePrice, lang)}
+              </span>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t">
+            <div className="flex justify-end pt-2">
               <button
+                type="button"
                 onClick={() => setBarcodeModalProduct(null)}
-                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200"
+                className="w-full py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg"
               >
                 {isBn ? 'বন্ধ করুন' : 'Close'}
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="flex items-center gap-1 px-4 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>{isBn ? 'প্রিন্ট' : 'Print'}</span>
               </button>
             </div>
           </div>

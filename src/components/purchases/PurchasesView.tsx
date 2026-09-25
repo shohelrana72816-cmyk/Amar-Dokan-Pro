@@ -11,6 +11,7 @@ import {
   X,
   Building,
   CheckCircle,
+  Eye,
 } from 'lucide-react';
 
 interface PurchasesViewProps {
@@ -19,12 +20,15 @@ interface PurchasesViewProps {
 }
 
 export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: propIsAddModalOpen, onCloseAddModal: propOnCloseAddModal }) => {
-  const { purchases, suppliers, products, recordPurchase, settings, activeBranchId } = useApp();
+  const { purchases, suppliers, products, recordPurchase, deletePurchase, isAdmin, settings, activeBranchId } = useApp();
   const isBn = settings.language === 'bn';
   const lang = settings.language;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(propIsAddModalOpen || false);
+  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
+  const [purchaseToDelete, setPurchaseToDelete] = useState<Purchase | null>(null);
+  const [isDeletingPurchase, setIsDeletingPurchase] = useState(false);
 
   React.useEffect(() => {
     if (propIsAddModalOpen !== undefined) {
@@ -38,15 +42,16 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
   };
 
   // Purchase Form State
+  const activeProducts = products.filter(p => p.isActive !== false);
   const [supplierId, setSupplierId] = useState(suppliers[0]?.id || '');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [items, setItems] = useState<PurchaseItem[]>([
     {
-      productId: products[0]?.id || '',
-      productName: products[0]?.name || '',
+      productId: activeProducts[0]?.id || '',
+      productName: activeProducts[0]?.name || '',
       quantity: 10,
-      purchasePrice: products[0]?.purchasePrice || 500,
-      total: (products[0]?.purchasePrice || 500) * 10,
+      purchasePrice: activeProducts[0]?.purchasePrice || 500,
+      total: (activeProducts[0]?.purchasePrice || 500) * 10,
     },
   ]);
   const [discount, setDiscount] = useState<number>(0);
@@ -212,6 +217,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 <th className="px-4 py-3 font-semibold text-right">{isBn ? 'পরিশোধ' : 'Paid'}</th>
                 <th className="px-4 py-3 font-semibold text-right">{isBn ? 'বকেয়া' : 'Due'}</th>
                 <th className="px-4 py-3 font-semibold">{isBn ? 'পেমেন্ট মাধ্যম' : 'Method'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -243,12 +249,34 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                   <td className="px-4 py-3 capitalize text-slate-700">
                     {purchase.paymentMethod}
                   </td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => setSelectedPurchase(purchase)}
+                        className="flex items-center gap-1 px-2 py-1 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded font-medium transition-colors"
+                        title={isBn ? 'চালান বিস্তারিত দেখুন' : 'View Bill Details'}
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{isBn ? 'দেখুন' : 'View'}</span>
+                      </button>
+
+                      {isAdmin && (
+                        <button
+                          onClick={() => setPurchaseToDelete(purchase)}
+                          className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                          title={isBn ? 'ক্রয় চালান মুছে ফেলুন (অ্যাডমিন অনলি)' : 'Delete Purchase (Admin Only)'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
 
               {filteredPurchases.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={9} className="py-12 text-center text-slate-400 text-xs">
                     {isBn ? 'কোনো ক্রয় চালান পাওয়া যায়নি।' : 'No purchase records found.'}
                   </td>
                 </tr>
@@ -329,7 +357,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                           onChange={(e) => handleItemChange(idx, 'productId', e.target.value)}
                           className="w-full p-1.5 border border-slate-200 rounded text-xs"
                         >
-                          {products.map(p => (
+                          {activeProducts.map(p => (
                             <option key={p.id} value={p.id}>
                               {p.name}
                             </option>
@@ -472,6 +500,183 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Purchase Modal */}
+      {selectedPurchase && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg p-5 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <Truck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">
+                    {isBn ? 'ক্রয় চালান বিস্তারিত' : 'Purchase Bill Details'}
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    {selectedPurchase.invoiceNumber} · {selectedPurchase.supplierName}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedPurchase(null)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex justify-between text-slate-600">
+                <span>{isBn ? 'তারিখ' : 'Date'}:</span>
+                <span className="font-medium text-slate-900">{formatDate(selectedPurchase.date, lang)}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>{isBn ? 'পেমেন্ট মাধ্যম' : 'Payment Method'}:</span>
+                <span className="font-medium text-slate-900 capitalize">{selectedPurchase.paymentMethod}</span>
+              </div>
+
+              <div className="border rounded-lg overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b text-slate-600">
+                    <tr>
+                      <th className="p-2 font-semibold">{isBn ? 'পণ্য' : 'Item'}</th>
+                      <th className="p-2 font-semibold text-center">{isBn ? 'পরিমাণ' : 'Qty'}</th>
+                      <th className="p-2 font-semibold text-right">{isBn ? 'দর' : 'Price'}</th>
+                      <th className="p-2 font-semibold text-right">{isBn ? 'মোট' : 'Total'}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {selectedPurchase.items.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="p-2 font-medium text-slate-900">{item.productName}</td>
+                        <td className="p-2 text-center font-mono-num">{toBnNumber(item.quantity)}</td>
+                        <td className="p-2 text-right font-mono-num">{formatCurrency(item.purchasePrice, lang)}</td>
+                        <td className="p-2 text-right font-mono-num font-bold">{formatCurrency(item.total, lang)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-xl space-y-1.5 border border-slate-200">
+                <div className="flex justify-between text-slate-700">
+                  <span>{isBn ? 'মোট ক্রয় মূল্য' : 'Subtotal'}:</span>
+                  <span className="font-mono-num font-bold">{formatCurrency(selectedPurchase.total, lang)}</span>
+                </div>
+                <div className="flex justify-between text-emerald-700">
+                  <span>{isBn ? 'পরিশোধিত' : 'Paid'}:</span>
+                  <span className="font-mono-num font-bold">{formatCurrency(selectedPurchase.paid, lang)}</span>
+                </div>
+                {selectedPurchase.due > 0 && (
+                  <div className="flex justify-between text-rose-700 font-bold">
+                    <span>{isBn ? 'বকেয়া' : 'Due'}:</span>
+                    <span className="font-mono-num">{formatCurrency(selectedPurchase.due, lang)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t">
+              <button
+                type="button"
+                onClick={() => setSelectedPurchase(null)}
+                className="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg"
+              >
+                {isBn ? 'বন্ধ করুন' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Purchase Confirmation Modal */}
+      {purchaseToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-xl border border-rose-200 w-full max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">
+                    {isBn ? 'Delete Purchase? (ক্রয় চালান মুছে ফেলবেন?)' : 'Delete Purchase?'}
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    {purchaseToDelete.invoiceNumber} · {purchaseToDelete.supplierName}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPurchaseToDelete(null)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-700">
+              <p className="font-medium text-slate-800">
+                {isBn
+                  ? 'Are you sure you want to delete this purchase? Related stock, supplier balance and account transactions may be affected.'
+                  : 'Are you sure you want to delete this purchase? Related stock, supplier balance and account transactions may be affected.'}
+              </p>
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl space-y-1 text-rose-900 text-[11px]">
+                <div className="flex justify-between font-semibold">
+                  <span>{isBn ? 'মোট ক্রয় মূল্য' : 'Total Amount'}:</span>
+                  <span className="font-mono-num">{formatCurrency(purchaseToDelete.total, lang)}</span>
+                </div>
+                <div className="flex justify-between text-emerald-800">
+                  <span>{isBn ? 'পরিশোধিত টাকা একাউন্টে ফেরত হবে' : 'Paid to restore to account'}:</span>
+                  <span className="font-mono-num">{formatCurrency(purchaseToDelete.paid, lang)}</span>
+                </div>
+                {purchaseToDelete.due > 0 && (
+                  <div className="flex justify-between text-rose-800">
+                    <span>{isBn ? 'সাপ্লায়ার বকেয়া কমে যাবে' : 'Supplier due reduced'}:</span>
+                    <span className="font-mono-num">{formatCurrency(purchaseToDelete.due, lang)}</span>
+                  </div>
+                )}
+                <p className="pt-1 text-rose-700 text-[10px]">
+                  {isBn
+                    ? '⚠ চালানের পণ্যের স্টক ইনভেন্টরি থেকে হ্রাস করা হবে।'
+                    : '⚠ Purchased items will be deducted from product stock inventory.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              <button
+                type="button"
+                disabled={isDeletingPurchase}
+                onClick={() => setPurchaseToDelete(null)}
+                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+              >
+                {isBn ? 'Cancel (বাতিল)' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingPurchase}
+                onClick={() => {
+                  setIsDeletingPurchase(true);
+                  try {
+                    deletePurchase(purchaseToDelete.id);
+                    setPurchaseToDelete(null);
+                  } finally {
+                    setIsDeletingPurchase(false);
+                  }
+                }}
+                className="px-4 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isDeletingPurchase ? (isBn ? 'মুছে ফেলা হচ্ছে...' : 'Deleting...') : (isBn ? 'Delete Purchase (মুছে ফেলুন)' : 'Delete Purchase')}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

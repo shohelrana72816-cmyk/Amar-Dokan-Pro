@@ -42,7 +42,7 @@ export const ReportsView: React.FC = () => {
   const filterDate = getFilterDate();
 
   const filteredSales = useMemo(() => {
-    return sales.filter(s => new Date(s.date) >= filterDate);
+    return sales.filter(s => new Date(s.date) >= filterDate && s.status !== 'voided' && s.status !== 'returned');
   }, [sales, filterDate]);
 
   const filteredPurchases = useMemo(() => {

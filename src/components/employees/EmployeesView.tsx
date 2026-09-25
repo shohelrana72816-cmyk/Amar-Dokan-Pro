@@ -10,10 +10,11 @@ import {
   Phone,
   Briefcase,
   Shield,
+  Trash2,
 } from 'lucide-react';
 
 export const EmployeesView: React.FC = () => {
-  const { employees, addEmployee, updateEmployee, disburseSalary, accounts, settings, branches } = useApp();
+  const { employees, addEmployee, updateEmployee, deleteEmployee, isAdmin, disburseSalary, accounts, settings, branches } = useApp();
   const isBn = settings.language === 'bn';
   const lang = settings.language;
 
@@ -22,6 +23,10 @@ export const EmployeesView: React.FC = () => {
   const [payMonth, setPayMonth] = useState('সেপ্টেম্বর ২০২৬');
   const [payAccountId, setPayAccountId] = useState(accounts[0]?.id || '');
   const [payAmount, setPayAmount] = useState<number>(0);
+
+  // Delete Employee State
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+  const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -130,13 +135,25 @@ export const EmployeesView: React.FC = () => {
                     {formatCurrency(emp.salary, lang)}
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <button
-                      onClick={() => handleOpenPaySalary(emp)}
-                      className="flex items-center gap-1 px-2.5 py-1 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded font-semibold transition-colors ml-auto"
-                    >
-                      <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{isBn ? 'বেতন দিন' : 'Pay Salary'}</span>
-                    </button>
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => handleOpenPaySalary(emp)}
+                        className="flex items-center gap-1 px-2.5 py-1 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded font-semibold transition-colors"
+                      >
+                        <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{isBn ? 'বেতন দিন' : 'Pay Salary'}</span>
+                      </button>
+
+                      {isAdmin && (
+                        <button
+                          onClick={() => setEmployeeToDelete(emp)}
+                          className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                          title={isBn ? 'কর্মচারী রেকর্ড মুছে ফেলুন (অ্যাডমিন অনলি)' : 'Delete Employee (Admin Only)'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -348,6 +365,86 @@ export const EmployeesView: React.FC = () => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Delete Employee Confirmation Modal */}
+      {employeeToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-xl border border-rose-200 w-full max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">
+                    {isBn ? 'Delete Employee? (কর্মচারী রেকর্ড মুছে ফেলবেন?)' : 'Delete Employee?'}
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    {employeeToDelete.name} ({employeeToDelete.position})
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEmployeeToDelete(null)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-700">
+              <p className="font-medium text-slate-800">
+                {isBn
+                  ? 'আপনি কি নিশ্চিত এই কর্মচারী রেকর্ডটি মুছে ফেলতে চান? এই অ্যাকশনটি অডিট ট্রেইলে সংরক্ষিত হবে।'
+                  : 'Are you sure you want to delete this employee record? This action will be recorded in the audit logs.'}
+              </p>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-700 text-xs">
+                <div className="flex justify-between">
+                  <span>{isBn ? 'পদবি ও রোল' : 'Position & Role'}:</span>
+                  <span className="font-semibold">{employeeToDelete.position} ({employeeToDelete.role})</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{isBn ? 'মোবাইল নম্বর' : 'Mobile'}:</span>
+                  <span className="font-mono">{employeeToDelete.mobile}</span>
+                </div>
+                <div className="flex justify-between text-slate-800">
+                  <span>{isBn ? 'মাসিক বেতন' : 'Salary'}:</span>
+                  <span className="font-mono-num font-bold">{formatCurrency(employeeToDelete.salary, lang)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              <button
+                type="button"
+                disabled={isDeletingEmployee}
+                onClick={() => setEmployeeToDelete(null)}
+                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+              >
+                {isBn ? 'Cancel (বাতিল)' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingEmployee}
+                onClick={() => {
+                  setIsDeletingEmployee(true);
+                  try {
+                    deleteEmployee(employeeToDelete.id);
+                    setEmployeeToDelete(null);
+                  } finally {
+                    setIsDeletingEmployee(false);
+                  }
+                }}
+                className="px-4 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isDeletingEmployee ? (isBn ? 'মুছে ফেলা হচ্ছে...' : 'Deleting...') : (isBn ? 'Delete Employee (মুছে ফেলুন)' : 'Delete Employee')}</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

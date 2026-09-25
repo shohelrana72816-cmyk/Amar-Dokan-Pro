@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Product, ProductVariant, SaleItem, Customer, PaymentMethod, Sale } from '../../types';
+import { Product, ProductVariant, SaleItem, PaymentMethod, Sale, SalePayment } from '../../types';
 import { formatCurrency, toBnNumber } from '../../utils/formatters';
 import { InvoiceModal } from './InvoiceModal';
 import {
@@ -11,18 +11,23 @@ import {
   Plus,
   Minus,
   UserPlus,
-  User,
   CreditCard,
-  Check,
-  AlertCircle,
   X,
   Layers,
+  Banknote,
+  Smartphone,
+  Landmark,
 } from 'lucide-react';
 
 export const POSView: React.FC = () => {
-  const { products, customers, addCustomer, recordSale, settings, activeBranchId, currentUserRole } = useApp();
+  const { products, categories: appCategories, customers, addCustomer, recordSale, settings, activeBranchId, currentUserRole } = useApp();
   const isBn = settings.language === 'bn';
   const lang = settings.language;
+
+  // Active products only (excluding soft-deleted)
+  const activeProducts = useMemo(() => {
+    return products.filter(p => p.isActive !== false);
+  }, [products]);
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,6 +48,13 @@ export const POSView: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [tenderedAmount, setTenderedAmount] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
+  const [isSubmittingSale, setIsSubmittingSale] = useState(false);
+
+  // Mixed Payment Split Inputs
+  const [mixedCash, setMixedCash] = useState<number | ''>('');
+  const [mixedBkash, setMixedBkash] = useState<number | ''>('');
+  const [mixedNagad, setMixedNagad] = useState<number | ''>('');
+  const [mixedBank, setMixedBank] = useState<number | ''>('');
 
   // Variant Modal
   const [variantProduct, setVariantProduct] = useState<Product | null>(null);
@@ -52,36 +64,43 @@ export const POSView: React.FC = () => {
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
 
-  // Categories extraction
-  const categories = useMemo(() => {
+  // Categories extraction (unified from appCategories and active products)
+  const allCategories = useMemo(() => {
     const set = new Set<string>();
-    products.forEach(p => {
+    appCategories.forEach(c => c.name && set.add(c.name));
+    activeProducts.forEach(p => {
       if (p.category) set.add(p.category);
     });
     return Array.from(set);
-  }, [products]);
+  }, [appCategories, activeProducts]);
 
   // Filtered Products
   const filteredProducts = useMemo(() => {
-    return products.filter(p => {
+    const q = searchQuery.toLowerCase().trim();
+    return activeProducts.filter(p => {
       const matchSearch =
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.barcode.includes(searchQuery);
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.code.toLowerCase().includes(q) ||
+        p.barcode.includes(q) ||
+        (p.brand && p.brand.toLowerCase().includes(q)) ||
+        (p.variants && p.variants.some(v => v.sku.toLowerCase().includes(q)));
 
       const matchCategory = selectedCategory === 'all' || p.category === selectedCategory;
 
       return matchSearch && matchCategory;
     });
-  }, [products, searchQuery, selectedCategory]);
+  }, [activeProducts, searchQuery, selectedCategory]);
 
-  // Handle Barcode Scan
+  // Handle Barcode Scan & SKU direct search
   const handleBarcodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!barcodeInput.trim()) return;
+    const query = barcodeInput.trim();
+    if (!query) return;
 
-    const matchedProduct = products.find(
-      p => p.barcode === barcodeInput.trim() || p.code.toLowerCase() === barcodeInput.trim().toLowerCase()
+    // 1. Direct match on product barcode or SKU
+    const matchedProduct = activeProducts.find(
+      p => p.barcode === query || p.code.toLowerCase() === query.toLowerCase()
     );
 
     if (matchedProduct) {
@@ -91,9 +110,28 @@ export const POSView: React.FC = () => {
         addToCart(matchedProduct);
       }
       setBarcodeInput('');
-    } else {
-      alert(isBn ? `বারকোড '${barcodeInput}' দিয়ে কোনো পণ্য পাওয়া যায়নি!` : `No product found with barcode '${barcodeInput}'`);
+      return;
     }
+
+    // 2. Direct match on variant SKU or barcode
+    for (const prod of activeProducts) {
+      if (prod.hasVariants && prod.variants) {
+        const matchedVariant = prod.variants.find(
+          v => v.sku.toLowerCase() === query.toLowerCase() || (v as any).barcode === query
+        );
+        if (matchedVariant) {
+          addToCart(prod, matchedVariant);
+          setBarcodeInput('');
+          return;
+        }
+      }
+    }
+
+    alert(
+      isBn
+        ? `বারকোড বা SKU '${query}' দিয়ে কোনো সক্রিয় পণ্য পাওয়া যায়নি!`
+        : `No active product found with barcode or SKU '${query}'`
+    );
   };
 
   // Add Product to Cart
@@ -155,7 +193,7 @@ export const POSView: React.FC = () => {
     setCart(prev => {
       const updated = [...prev];
       const item = updated[index];
-      const prod = products.find(p => p.id === item.productId);
+      const prod = activeProducts.find(p => p.id === item.productId);
       const maxStock = item.variantId && prod?.variants
         ? (prod.variants.find(v => v.id === item.variantId)?.stock || 0)
         : (prod?.currentStock || 0);
@@ -174,22 +212,6 @@ export const POSView: React.FC = () => {
     });
   };
 
-  // Update Item Discount
-  const updateItemDiscount = (index: number, discountAmount: number) => {
-    setCart(prev => {
-      const updated = [...prev];
-      const item = updated[index];
-      const lineSubtotal = item.quantity * item.unitPrice;
-      const safeDiscount = Math.min(lineSubtotal, Math.max(0, discountAmount));
-      updated[index] = {
-        ...item,
-        discount: safeDiscount,
-        total: lineSubtotal - safeDiscount,
-      };
-      return updated;
-    });
-  };
-
   // Remove Item
   const removeFromCart = (index: number) => {
     setCart(prev => prev.filter((_, i) => i !== index));
@@ -202,6 +224,10 @@ export const POSView: React.FC = () => {
       setCart([]);
       setOrderDiscount(0);
       setTenderedAmount('');
+      setMixedCash('');
+      setMixedBkash('');
+      setMixedNagad('');
+      setMixedBank('');
     }
   };
 
@@ -214,10 +240,18 @@ export const POSView: React.FC = () => {
   const vatTaxAmount = Math.round((taxableAmount * vatTaxRate) / 100);
   const grandTotal = Math.max(0, taxableAmount + vatTaxAmount);
 
+  // Mixed Payment Total
+  const mixedTotal = (Number(mixedCash) || 0) + (Number(mixedBkash) || 0) + (Number(mixedNagad) || 0) + (Number(mixedBank) || 0);
+
   // Paid & Due amounts
-  const effectivePaid = paymentMethod === 'due'
-    ? 0
-    : (tenderedAmount === '' ? grandTotal : Number(tenderedAmount));
+  let effectivePaid = 0;
+  if (paymentMethod === 'due') {
+    effectivePaid = 0;
+  } else if (paymentMethod === 'mixed') {
+    effectivePaid = mixedTotal;
+  } else {
+    effectivePaid = tenderedAmount === '' ? grandTotal : Number(tenderedAmount);
+  }
 
   const changeReturn = effectivePaid > grandTotal ? effectivePaid - grandTotal : 0;
   const dueAmount = effectivePaid < grandTotal ? grandTotal - effectivePaid : 0;
@@ -227,6 +261,7 @@ export const POSView: React.FC = () => {
 
   // Complete Sale
   const handleCompleteSale = () => {
+    if (isSubmittingSale) return;
     if (cart.length === 0) {
       alert(isBn ? 'কার্টে কোনো পণ্য নেই!' : 'Cart is empty!');
       return;
@@ -237,34 +272,65 @@ export const POSView: React.FC = () => {
       return;
     }
 
-    const saleRecord = recordSale({
-      customerId: selectedCustomer?.id,
-      customerName: selectedCustomer ? selectedCustomer.name : (isBn ? 'ওয়াক-ইন কাস্টমার' : 'Walk-in Customer'),
-      customerMobile: selectedCustomer?.mobile || '',
-      items: cart,
-      subtotal,
-      discount: totalDiscount,
-      vatTaxRate,
-      vatTaxAmount,
-      total: grandTotal,
-      paid: Math.min(effectivePaid, grandTotal),
-      due: dueAmount,
-      paymentMethod,
-      payments: [{ method: paymentMethod, amount: Math.min(effectivePaid, grandTotal) }],
-      servedBy: currentUserRole,
-      branchId: activeBranchId,
-      notes,
-    });
+    setIsSubmittingSale(true);
 
-    // Reset Form
-    setCart([]);
-    setOrderDiscount(0);
-    setTenderedAmount('');
-    setSelectedCustomerId('');
-    setNotes('');
+    try {
+      // Build Payments array
+      const payments: SalePayment[] = [];
+      const actualPaid = Math.min(effectivePaid, grandTotal);
 
-    // Open Invoice
-    setCompletedSale(saleRecord);
+      if (paymentMethod === 'mixed') {
+        const cashAmt = Number(mixedCash) || 0;
+        const bkashAmt = Number(mixedBkash) || 0;
+        const nagadAmt = Number(mixedNagad) || 0;
+        const bankAmt = Number(mixedBank) || 0;
+
+        if (cashAmt > 0) payments.push({ method: 'cash', amount: cashAmt, accountId: 'acc-cash', accountName: 'ক্যাশ ড্রয়ার' });
+        if (bkashAmt > 0) payments.push({ method: 'bkash', amount: bkashAmt, accountId: 'acc-bkash', accountName: 'বিকাশ মার্চেন্ট' });
+        if (nagadAmt > 0) payments.push({ method: 'nagad', amount: nagadAmt, accountId: 'acc-nagad', accountName: 'নগদ একাউন্ট' });
+        if (bankAmt > 0) payments.push({ method: 'bank', amount: bankAmt, accountId: 'acc-islami', accountName: 'ব্যাংক একাউন্ট' });
+      } else if (paymentMethod !== 'due') {
+        payments.push({
+          method: paymentMethod,
+          amount: actualPaid,
+        });
+      }
+
+      const saleRecord = recordSale({
+        customerId: selectedCustomer?.id,
+        customerName: selectedCustomer ? selectedCustomer.name : (isBn ? 'ওয়াক-ইন কাস্টমার' : 'Walk-in Customer'),
+        customerMobile: selectedCustomer?.mobile || '',
+        items: cart,
+        subtotal,
+        discount: totalDiscount,
+        vatTaxRate,
+        vatTaxAmount,
+        total: grandTotal,
+        paid: actualPaid,
+        due: dueAmount,
+        paymentMethod,
+        payments,
+        servedBy: currentUserRole,
+        branchId: activeBranchId,
+        notes,
+      });
+
+      // Reset Form
+      setCart([]);
+      setOrderDiscount(0);
+      setTenderedAmount('');
+      setMixedCash('');
+      setMixedBkash('');
+      setMixedNagad('');
+      setMixedBank('');
+      setSelectedCustomerId('');
+      setNotes('');
+
+      // Open Invoice
+      setCompletedSale(saleRecord);
+    } finally {
+      setIsSubmittingSale(false);
+    }
   };
 
   // Quick Customer Creation
@@ -299,7 +365,7 @@ export const POSView: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={isBn ? 'পণ্য বা SKU দিয়ে খুঁজুন...' : 'Search by name or SKU...'}
+                placeholder={isBn ? 'নাম, SKU বা ব্র্যান্ড দিয়ে খুঁজুন...' : 'Search by name, SKU or brand...'}
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
@@ -312,7 +378,7 @@ export const POSView: React.FC = () => {
                 type="text"
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
-                placeholder={isBn ? 'বারকোড স্ক্যান করুন...' : 'Scan / enter barcode...'}
+                placeholder={isBn ? 'বারকোড স্ক্যান বা এন্টার করুন...' : 'Scan / enter barcode...'}
                 className="w-full pl-9 pr-14 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
               />
               <button
@@ -336,7 +402,7 @@ export const POSView: React.FC = () => {
             >
               {isBn ? 'সব পণ্য' : 'All Items'}
             </button>
-            {categories.map(cat => (
+            {allCategories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -583,7 +649,7 @@ export const POSView: React.FC = () => {
             <span className="text-[11px] font-semibold text-slate-700 block mb-1">
               {isBn ? 'পেমেন্ট মাধ্যম' : 'Payment Method'}
             </span>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-1">
               {(['cash', 'bkash', 'nagad', 'bank', 'due', 'mixed'] as PaymentMethod[]).map(method => (
                 <button
                   key={method}
@@ -594,14 +660,85 @@ export const POSView: React.FC = () => {
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
-                  {method === 'due' ? (isBn ? 'বাকি' : 'Due') : method}
+                  {method === 'due'
+                    ? (isBn ? 'বাকি' : 'Due')
+                    : method === 'mixed'
+                    ? (isBn ? 'মিক্সড' : 'Mixed')
+                    : method}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Tendered Amount & Change Calculation */}
-          {paymentMethod !== 'due' && (
+          {/* Payment Inputs for Single vs Mixed */}
+          {paymentMethod === 'mixed' ? (
+            /* Mixed Split Payment Inputs */
+            <div className="bg-emerald-50/70 border border-emerald-200 rounded-lg p-2.5 space-y-2 text-xs">
+              <span className="text-[11px] font-bold text-emerald-900 block">
+                {isBn ? 'স্প্লিট / মাল্টি-একাউন্ট পেমেন্ট হিসাব:' : 'Split / Mixed Payment Breakdown:'}
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-slate-600 font-medium block">
+                    {isBn ? 'নগদ (Cash ৳)' : 'Cash (৳)'}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={mixedCash}
+                    onChange={(e) => setMixedCash(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="0"
+                    className="w-full py-1 px-2 border border-slate-200 rounded bg-white font-mono-num font-semibold text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-600 font-medium block">
+                    {isBn ? 'বিকাশ (bKash ৳)' : 'bKash (৳)'}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={mixedBkash}
+                    onChange={(e) => setMixedBkash(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="0"
+                    className="w-full py-1 px-2 border border-slate-200 rounded bg-white font-mono-num font-semibold text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-600 font-medium block">
+                    {isBn ? 'নগদ ওয়ালেট (Nagad ৳)' : 'Nagad (৳)'}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={mixedNagad}
+                    onChange={(e) => setMixedNagad(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="0"
+                    className="w-full py-1 px-2 border border-slate-200 rounded bg-white font-mono-num font-semibold text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-600 font-medium block">
+                    {isBn ? 'ব্যাংক / কার্ড (Bank ৳)' : 'Bank / Card (৳)'}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={mixedBank}
+                    onChange={(e) => setMixedBank(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="0"
+                    className="w-full py-1 px-2 border border-slate-200 rounded bg-white font-mono-num font-semibold text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between font-bold pt-1 border-t border-emerald-200 text-xs">
+                <span>{isBn ? 'মোট প্রাপ্ত:' : 'Total Received:'}</span>
+                <span className="font-mono-num text-emerald-800">{formatCurrency(mixedTotal, lang)}</span>
+              </div>
+            </div>
+          ) : paymentMethod !== 'due' ? (
+            /* Single Tendered Input & Quick Cash Buttons */
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-medium text-slate-700">
@@ -629,36 +766,38 @@ export const POSView: React.FC = () => {
                   </button>
                 ))}
               </div>
+            </div>
+          ) : null}
 
-              {/* Change / Due display */}
-              {changeReturn > 0 && (
-                <div className="flex justify-between text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded">
-                  <span>{isBn ? 'ফেরত দিন (Change):' : 'Change Return:'}</span>
-                  <span className="font-mono-num">{formatCurrency(changeReturn, lang)}</span>
-                </div>
-              )}
-              {dueAmount > 0 && (
-                <div className="flex justify-between text-xs font-bold text-rose-700 bg-rose-50 px-2 py-1 rounded">
-                  <span>{isBn ? 'বকেয়া থাকবে (Due):' : 'Pending Due:'}</span>
-                  <span className="font-mono-num">{formatCurrency(dueAmount, lang)}</span>
-                </div>
-              )}
+          {/* Change & Due Display */}
+          {changeReturn > 0 && (
+            <div className="flex justify-between text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded">
+              <span>{isBn ? 'ফেরত দিন (Change Return):' : 'Change Return:'}</span>
+              <span className="font-mono-num">{formatCurrency(changeReturn, lang)}</span>
+            </div>
+          )}
+          {dueAmount > 0 && (
+            <div className="flex justify-between text-xs font-bold text-rose-700 bg-rose-50 px-2 py-1 rounded">
+              <span>{isBn ? 'বকেয়া থাকবে (Pending Due):' : 'Pending Due:'}</span>
+              <span className="font-mono-num">{formatCurrency(dueAmount, lang)}</span>
             </div>
           )}
 
-          {/* Checkout Button */}
+          {/* Checkout Button with Double-Submission Prevention */}
           <button
             onClick={handleCompleteSale}
-            disabled={cart.length === 0}
+            disabled={cart.length === 0 || isSubmittingSale}
             className={`w-full py-2.5 rounded-lg text-xs md:text-sm font-bold text-white shadow-xs transition-all flex items-center justify-center gap-2 ${
-              cart.length === 0
+              cart.length === 0 || isSubmittingSale
                 ? 'bg-slate-300 cursor-not-allowed'
                 : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99]'
             }`}
           >
             <CreditCard className="w-4 h-4" />
             <span>
-              {isBn ? 'বিক্রি সম্পন্ন ও ইনভয়েস প্রিন্ট' : 'Complete Sale & Print'}
+              {isSubmittingSale
+                ? (isBn ? 'বিক্রি প্রসেস হচ্ছে...' : 'Processing...')
+                : isBn ? 'বিক্রি সম্পন্ন ও ইনভয়েস প্রিন্ট' : 'Complete Sale & Print'}
               {grandTotal > 0 && ` (${formatCurrency(grandTotal, lang)})`}
             </span>
           </button>
@@ -675,6 +814,7 @@ export const POSView: React.FC = () => {
                 <span className="text-xs text-slate-500">{isBn ? 'সাইজ ও রঙ নির্বাচন করুন' : 'Select Variant'}</span>
               </div>
               <button
+                type="button"
                 onClick={() => setVariantProduct(null)}
                 className="p-1 text-slate-400 hover:text-slate-600 rounded"
               >

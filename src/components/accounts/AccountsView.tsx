@@ -13,6 +13,7 @@ import {
   TrendingDown,
   ArrowUpRight,
   ArrowDownRight,
+  Trash2,
 } from 'lucide-react';
 
 interface AccountsViewProps {
@@ -21,13 +22,15 @@ interface AccountsViewProps {
 }
 
 export const AccountsView: React.FC<AccountsViewProps> = ({ isExpenseModalOpen: propIsExpenseModalOpen, onCloseExpenseModal: propOnCloseExpenseModal }) => {
-  const { accounts, expenses, addExpense, transferMoney, settings } = useApp();
+  const { accounts, expenses, addExpense, deleteExpense, isAdmin, transferMoney, settings } = useApp();
   const isBn = settings.language === 'bn';
   const lang = settings.language;
 
   // Modals
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(propIsExpenseModalOpen || false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
+  const [isDeletingExpense, setIsDeletingExpense] = useState(false);
 
   React.useEffect(() => {
     if (propIsExpenseModalOpen !== undefined) {
@@ -188,6 +191,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ isExpenseModalOpen: 
                 <th className="px-4 py-3 font-semibold">{isBn ? 'যে ফান্ড থেকে কর্তন' : 'Account'}</th>
                 <th className="px-4 py-3 font-semibold">{isBn ? 'নোট / বিবরণ' : 'Note'}</th>
                 <th className="px-4 py-3 font-semibold text-right">{isBn ? 'টাকার পরিমাণ' : 'Amount'}</th>
+                {isAdmin && <th className="px-4 py-3 font-semibold text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -213,13 +217,24 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ isExpenseModalOpen: 
                     <td className="px-4 py-3 text-right font-mono-num font-bold text-rose-700 text-sm">
                       {formatCurrency(exp.amount, lang)}
                     </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => setExpenseToDelete(exp)}
+                          className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
+                          title={isBn ? 'খরচ মুছে ফেলুন (অ্যাডমিন অনলি)' : 'Delete Expense (Admin Only)'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
 
               {expenses.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={isAdmin ? 7 : 6} className="py-12 text-center text-slate-400 text-xs">
                     {isBn ? 'কোনো খরচের রেকর্ড পাওয়া যায়নি।' : 'No expenses recorded.'}
                   </td>
                 </tr>
@@ -449,6 +464,87 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ isExpenseModalOpen: 
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Delete Expense Confirmation Modal */}
+      {expenseToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-xl border border-rose-200 w-full max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">
+                    {isBn ? 'Delete Expense? (খরচ মুছে ফেলবেন?)' : 'Delete Expense?'}
+                  </h3>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    {expenseToDelete.category}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setExpenseToDelete(null)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-700">
+              <p className="font-medium text-slate-800">
+                {isBn
+                  ? 'Are you sure you want to delete this expense record? Related account balance will be restored.'
+                  : 'Are you sure you want to delete this expense record? Related account balance will be restored.'}
+              </p>
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl space-y-1 text-rose-900 text-xs">
+                <div className="flex justify-between font-semibold">
+                  <span>{isBn ? 'খরচের পরিমাণ' : 'Expense Amount'}:</span>
+                  <span className="font-mono-num font-bold">{formatCurrency(expenseToDelete.amount, lang)}</span>
+                </div>
+                <div className="flex justify-between text-slate-700">
+                  <span>{isBn ? 'গ্রহীতা' : 'Paid To'}:</span>
+                  <span>{expenseToDelete.paidTo || '—'}</span>
+                </div>
+                <p className="pt-1 text-rose-700 text-[11px]">
+                  {isBn
+                    ? '⚠ এই খরচটি মুছে ফেলার সাথে সাথে খরচ বাবদ কর্তনকৃত টাকা সংশ্লিষ্ট অ্যাকাউন্টে ফিরিয়ে দেওয়া হবে।'
+                    : '⚠ Deleting this expense will restore the spent amount back to the source account.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              <button
+                type="button"
+                disabled={isDeletingExpense}
+                onClick={() => setExpenseToDelete(null)}
+                className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+              >
+                {isBn ? 'Cancel (বাতিল)' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingExpense}
+                onClick={() => {
+                  setIsDeletingExpense(true);
+                  try {
+                    deleteExpense(expenseToDelete.id);
+                    setExpenseToDelete(null);
+                  } finally {
+                    setIsDeletingExpense(false);
+                  }
+                }}
+                className="px-4 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isDeletingExpense ? (isBn ? 'মুছে ফেলা হচ্ছে...' : 'Deleting...') : (isBn ? 'Delete Expense (মুছে ফেলুন)' : 'Delete Expense')}</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
