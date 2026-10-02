@@ -16,7 +16,7 @@ import {
 
 export const ReportsView: React.FC = () => {
   const { sales, purchases, expenses, products, customers, suppliers, settings } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   const [dateRange, setDateRange] = useState<'today' | '7days' | 'month' | 'year' | 'all'>('month');
@@ -146,10 +146,10 @@ export const ReportsView: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-emerald-600" />
-            <span>{isBn ? 'ব্যবসায়িক লাভ-ক্ষতি ও সার্বিক রিপোর্ট' : 'Profit/Loss & Financial Reports'}</span>
+            <span>{'Profit/Loss & Financial Reports'}</span>
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
-            {isBn ? 'স্বয়ংক্রিয় প্রফিট ক্যালকুলেশন, বিক্রয় ও খরচের রিপোর্ট' : 'Automated P&L accounting, sales & inventory analytics'}
+            {'Automated P&L accounting, sales & inventory analytics'}
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export const ReportsView: React.FC = () => {
                 dateRange === 'today' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
-              {isBn ? 'আজ' : 'Today'}
+              {'Today'}
             </button>
             <button
               onClick={() => setDateRange('7days')}
@@ -170,7 +170,7 @@ export const ReportsView: React.FC = () => {
                 dateRange === '7days' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
-              {isBn ? '৭ দিন' : '7 Days'}
+              {'7 Days'}
             </button>
             <button
               onClick={() => setDateRange('month')}
@@ -178,7 +178,7 @@ export const ReportsView: React.FC = () => {
                 dateRange === 'month' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
-              {isBn ? 'চলতি মাস' : 'This Month'}
+              {'This Month'}
             </button>
             <button
               onClick={() => setDateRange('year')}
@@ -186,7 +186,7 @@ export const ReportsView: React.FC = () => {
                 dateRange === 'year' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
-              {isBn ? 'চলতি বছর' : 'This Year'}
+              {'This Year'}
             </button>
             <button
               onClick={() => setDateRange('all')}
@@ -194,7 +194,7 @@ export const ReportsView: React.FC = () => {
                 dateRange === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
-              {isBn ? 'সব সময়' : 'All Time'}
+              {'All Time'}
             </button>
           </div>
 
@@ -203,7 +203,7 @@ export const ReportsView: React.FC = () => {
             className="flex items-center gap-1.5 px-3 py-1.5 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 font-semibold transition-colors"
           >
             <Download className="w-3.5 h-3.5 text-slate-600" />
-            <span>{isBn ? 'CSV ডাউনলোড' : 'Export CSV'}</span>
+            <span>{'Export CSV'}</span>
           </button>
         </div>
       </div>
@@ -211,44 +211,44 @@ export const ReportsView: React.FC = () => {
       {/* P&L Key Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'মোট বিক্রয় রাজস্ব' : 'Total Revenue'}</span>
+          <span className="text-xs text-slate-500 block">{'Total Revenue'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-slate-900 mt-1 block">
             {formatCurrency(totalSalesRevenue, lang)}
           </span>
           <span className="text-[11px] text-slate-500 mt-0.5 block">
-            {toBnNumber(filteredSales.length)} {isBn ? 'টি বিক্রয় ইনভয়েস' : 'orders'}
+            {toBnNumber(filteredSales.length)} {'orders'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'পণ্য ক্রয়মূল্য (COGS)' : 'Cost of Goods Sold'}</span>
+          <span className="text-xs text-slate-500 block">{'Cost of Goods Sold'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-slate-700 mt-1 block">
             {formatCurrency(totalCOGS, lang)}
           </span>
           <span className="text-[11px] text-slate-500 mt-0.5 block">
-            {isBn ? 'বিক্রিত পণ্যের আসল ক্রয় খরচ' : 'Cost of sold items'}
+            {'Cost of sold items'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'মোট খরচ (Operating Expense)' : 'Total Expenses'}</span>
+          <span className="text-xs text-slate-500 block">{'Total Expenses'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-rose-700 mt-1 block">
             {formatCurrency(totalExpensesAmount, lang)}
           </span>
           <span className="text-[11px] text-slate-500 mt-0.5 block">
-            {toBnNumber(filteredExpenses.length)} {isBn ? 'টি খরচ এন্ট্রি' : 'expense entries'}
+            {toBnNumber(filteredExpenses.length)} {'expense entries'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-xs">
           <span className="text-xs text-emerald-800 font-semibold block">
-            {isBn ? 'খাঁটি নিট লাভ (Net Profit)' : 'Net Profit'}
+            {'Net Profit'}
           </span>
           <span className={`text-xl md:text-2xl font-bold font-mono-num mt-1 block ${netProfit >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
             {formatCurrency(netProfit, lang)}
           </span>
           <span className="text-[11px] text-emerald-600 mt-0.5 block">
-            {isBn ? 'গ্রস লাভ - মোট খরচ' : 'Gross Margin - Operating Costs'}
+            {'Gross Margin - Operating Costs'}
           </span>
         </div>
       </div>
@@ -261,7 +261,7 @@ export const ReportsView: React.FC = () => {
             reportTab === 'pnl' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          {isBn ? 'লাভ-ক্ষতির বিস্তারিত বিবরণী' : 'P&L Statement'}
+          {'P&L Statement'}
         </button>
         <button
           onClick={() => setReportTab('products')}
@@ -269,7 +269,7 @@ export const ReportsView: React.FC = () => {
             reportTab === 'products' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          {isBn ? 'পণ্যভিত্তিক বিক্রি ও লাভ' : 'Product-wise Sales'}
+          {'Product-wise Sales'}
         </button>
         <button
           onClick={() => setReportTab('expenses')}
@@ -277,7 +277,7 @@ export const ReportsView: React.FC = () => {
             reportTab === 'expenses' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          {isBn ? 'খরচের খাতভিত্তিক বিশ্লেষণ' : 'Expense Breakdown'}
+          {'Expense Breakdown'}
         </button>
         <button
           onClick={() => setReportTab('dues')}
@@ -285,7 +285,7 @@ export const ReportsView: React.FC = () => {
             reportTab === 'dues' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          {isBn ? 'বকেয়া ও পাওনা স্থিতি' : 'Due & Balance Sheet'}
+          {'Due & Balance Sheet'}
         </button>
       </div>
 
@@ -294,9 +294,9 @@ export const ReportsView: React.FC = () => {
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 max-w-2xl mx-auto space-y-4 text-xs">
           <div className="text-center pb-3 border-b border-slate-200">
             <h3 className="text-base font-bold text-slate-900">{settings.shopName}</h3>
-            <p className="text-slate-500">{isBn ? 'লাভ-ক্ষতি ও আর্থিক খতিয়ান (Profit & Loss Statement)' : 'Income Statement'}</p>
+            <p className="text-slate-500">{'Income Statement'}</p>
             <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-              {isBn ? 'মেয়াদ:' : 'Period:'} {dateRange.toUpperCase()} · {formatDate(now.toISOString(), lang)}
+              {'Period:'} {dateRange.toUpperCase()} · {formatDate(now.toISOString(), lang)}
             </p>
           </div>
 
@@ -304,7 +304,7 @@ export const ReportsView: React.FC = () => {
             {/* Revenue */}
             <div className="pt-2">
               <div className="flex justify-between font-bold text-slate-900 text-sm py-1">
-                <span>১. মোট বিক্রয় রাজস্ব (Sales Revenue):</span>
+                <span>1. Total Sales Revenue:</span>
                 <span className="font-mono-num">{formatCurrency(totalSalesRevenue, lang)}</span>
               </div>
             </div>
@@ -312,18 +312,18 @@ export const ReportsView: React.FC = () => {
             {/* Cost of Goods Sold */}
             <div className="pt-2">
               <div className="flex justify-between text-slate-700 py-1">
-                <span>২. বাদ: বিক্রিত পণ্যের ক্রয়মূল্য (Cost of Goods Sold - COGS):</span>
+                <span>2. Less: Cost of Goods Sold (COGS):</span>
                 <span className="font-mono-num font-semibold text-rose-700">-{formatCurrency(totalCOGS, lang)}</span>
               </div>
               <div className="flex justify-between font-bold text-slate-900 py-1.5 bg-slate-50 px-2 rounded">
-                <span>মোট গ্রস লাভ (Gross Profit):</span>
+                <span>Gross Profit:</span>
                 <span className="font-mono-num text-emerald-800 text-sm">{formatCurrency(grossProfit, lang)}</span>
               </div>
             </div>
 
             {/* Operating Expenses */}
             <div className="pt-2 space-y-1">
-              <span className="font-semibold text-slate-800 block">৩. পরিচালন ব্যয়সমূহ (Operating Expenses):</span>
+              <span className="font-semibold text-slate-800 block">3. Operating Expenses:</span>
               {categoryExpenseMap.map(([cat, amt]) => (
                 <div key={cat} className="flex justify-between text-slate-600 pl-4 py-0.5">
                   <span>{cat}</span>
@@ -331,7 +331,7 @@ export const ReportsView: React.FC = () => {
                 </div>
               ))}
               <div className="flex justify-between font-bold text-slate-800 pt-1 border-t border-slate-200">
-                <span>মোট খরচ (Total Operating Expenses):</span>
+                <span>Total Operating Expenses:</span>
                 <span className="font-mono-num text-rose-700">-{formatCurrency(totalExpensesAmount, lang)}</span>
               </div>
             </div>
@@ -339,7 +339,7 @@ export const ReportsView: React.FC = () => {
             {/* Net Profit */}
             <div className="pt-3">
               <div className="flex justify-between font-bold text-base text-slate-900 bg-emerald-50/80 p-3 rounded-xl border border-emerald-200">
-                <span>সর্বমোট নিট লাভ (Net Profit):</span>
+                <span>Net Profit:</span>
                 <span className={`font-mono-num ${netProfit >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
                   {formatCurrency(netProfit, lang)}
                 </span>
@@ -354,10 +354,10 @@ export const ReportsView: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
               <tr>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'পণ্যের নাম' : 'Product'}</th>
-                <th className="px-4 py-3 font-semibold text-center">{isBn ? 'বিক্রিত পরিমাণ' : 'Sold Qty'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'মোট বিক্রয় আয়' : 'Revenue'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'মোট অর্জিত লাভ' : 'Net Margin'}</th>
+                <th className="px-4 py-3 font-semibold">{'Product'}</th>
+                <th className="px-4 py-3 font-semibold text-center">{'Sold Qty'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Revenue'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Net Margin'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -372,7 +372,7 @@ export const ReportsView: React.FC = () => {
               {productSalesMap.length === 0 && (
                 <tr>
                   <td colSpan={4} className="py-12 text-center text-slate-400 text-xs">
-                    {isBn ? 'নির্বাচিত মেয়াদে কোনো বিক্রয় তথ্য পাওয়া যায়নি।' : 'No sales records in selected range.'}
+                    {'No sales records in selected range.'}
                   </td>
                 </tr>
               )}
@@ -386,9 +386,9 @@ export const ReportsView: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
               <tr>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'খরচের খাত / ক্যাটাগরি' : 'Category'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'খরচের পরিমাণ (টাকা)' : 'Total Spent'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'শতকরা অনুপাত' : 'Percentage'}</th>
+                <th className="px-4 py-3 font-semibold">{'Category'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Total Spent'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Percentage'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -405,7 +405,7 @@ export const ReportsView: React.FC = () => {
               {categoryExpenseMap.length === 0 && (
                 <tr>
                   <td colSpan={3} className="py-12 text-center text-slate-400 text-xs">
-                    {isBn ? 'নির্বাচিত মেয়াদে কোনো খরচ এন্ট্রি নেই।' : 'No expenses in selected range.'}
+                    {'No expenses in selected range.'}
                   </td>
                 </tr>
               )}
@@ -418,7 +418,7 @@ export const ReportsView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
             <div className="flex justify-between items-center pb-2 border-b">
-              <span className="font-bold text-slate-900 text-xs">{isBn ? 'কাস্টমার বকেয়া (Receivable Due)' : 'Customer Due'}</span>
+              <span className="font-bold text-slate-900 text-xs">{'Customer Due'}</span>
               <span className="font-bold font-mono-num text-amber-800 text-sm">{formatCurrency(totalCustomerDue, lang)}</span>
             </div>
             <div className="divide-y max-h-60 overflow-y-auto text-xs">
@@ -433,7 +433,7 @@ export const ReportsView: React.FC = () => {
 
           <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
             <div className="flex justify-between items-center pb-2 border-b">
-              <span className="font-bold text-slate-900 text-xs">{isBn ? 'সাপ্লায়ার পাওনা (Payable Due)' : 'Supplier Due'}</span>
+              <span className="font-bold text-slate-900 text-xs">{'Supplier Due'}</span>
               <span className="font-bold font-mono-num text-rose-800 text-sm">{formatCurrency(totalSupplierDue, lang)}</span>
             </div>
             <div className="divide-y max-h-60 overflow-y-auto text-xs">

@@ -24,7 +24,7 @@ interface ProductsViewProps {
 
 export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: propIsAddModalOpen, onCloseAddModal: propOnCloseAddModal }) => {
   const { products, categories, addCategory, addProduct, updateProduct, deleteProduct, isAdmin, settings } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   // Filter States
@@ -157,12 +157,12 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
     const cleanBarcode = barcode.trim();
 
     if (!cleanName || purchasePrice === '' || salePrice === '') {
-      alert(isBn ? 'নাম, ক্রয়মূল্য এবং বিক্রয়মূল্য দেওয়া আবশ্যক!' : 'Name, purchase price, and sale price are required!');
+      alert('Name, purchase price, and sale price are required!');
       return;
     }
 
     if (Number(salePrice) < 0 || Number(purchasePrice) < 0) {
-      alert(isBn ? 'মূল্য ঋণাত্মক হতে পারে না!' : 'Prices cannot be negative!');
+      alert('Prices cannot be negative!');
       return;
     }
 
@@ -171,7 +171,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
       p => p.id !== editingProduct?.id && p.code.toLowerCase() === cleanCode.toLowerCase()
     );
     if (isSkuTaken) {
-      alert(isBn ? `SKU '${cleanCode}' ইতোমধ্যেই অন্য পণ্যে ব্যবহৃত হচ্ছে! অনুগ্রহ করে ভিন্ন SKU দিন।` : `SKU '${cleanCode}' is already taken!`);
+      alert(`SKU '${cleanCode}' is already taken!`);
       return;
     }
 
@@ -180,7 +180,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
       p => p.id !== editingProduct?.id && p.barcode.toLowerCase() === cleanBarcode.toLowerCase()
     );
     if (isBarcodeTaken) {
-      alert(isBn ? `বারকোড '${cleanBarcode}' ইতোমধ্যেই অন্য পণ্যে ব্যবহৃত হচ্ছে!` : `Barcode '${cleanBarcode}' is already used!`);
+      alert(`Barcode '${cleanBarcode}' is already used!`);
       return;
     }
 
@@ -278,12 +278,10 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <Package className="w-5 h-5 text-emerald-600" />
-            <span>{isBn ? 'পণ্য তালিকা ও ইনভেন্টরি' : 'Product Catalog & Inventory'}</span>
+            <span>{'Product Catalog & Inventory'}</span>
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
-            {isBn
-              ? `মোট পণ্য: ${toBnNumber(products.length)} টি · নতুন পণ্য যোগ করলে সাথে সাথে POS, স্টক ও ইনভয়েস সিস্টেমে দেখা যাবে`
-              : `Total: ${products.length} products · Instantly available for POS sales & stock`}
+            {`Total: ${products.length} products · Instantly available for POS sales & stock`}
           </p>
         </div>
 
@@ -292,7 +290,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
           className="flex items-center gap-2 px-3.5 py-2 text-xs md:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>{isBn ? 'নতুন পণ্য যোগ করুন' : 'Add New Product'}</span>
+          <span>{'Add New Product'}</span>
         </button>
       </div>
 
@@ -305,19 +303,19 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isBn ? 'পণ্য নাম, কোড, বা বারকোড দিয়ে খুঁজুন...' : 'Search by product name, code, barcode...'}
+            placeholder={'Search by product name, code, barcode...'}
             className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-slate-50/50"
           />
         </div>
 
         {/* Category Filter */}
         <select
-          aria-label={isBn ? 'ক্যাটাগরি অনুযায়ী ফিল্টার করুন' : 'Filter by category'}
+          aria-label={'Filter by category'}
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="w-full sm:w-auto py-1.5 px-3 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium text-slate-700"
         >
-          <option value="all">{isBn ? 'সকল ক্যাটাগরি' : 'All Categories'}</option>
+          <option value="all">{'All Categories'}</option>
           {categoriesList.map(c => (
             <option key={c} value={c}>
               {c}
@@ -327,27 +325,27 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
 
         {/* Stock Filter */}
         <select
-          aria-label={isBn ? 'স্টক অবস্থা অনুযায়ী ফিল্টার করুন' : 'Filter by stock status'}
+          aria-label={'Filter by stock status'}
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value as any)}
           className="w-full sm:w-auto py-1.5 px-3 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium text-slate-700"
         >
-          <option value="all">{isBn ? 'সকল স্টক স্ট্যাটাস' : 'All Stock'}</option>
-          <option value="normal">{isBn ? 'পর্যাপ্ত স্টক' : 'Normal Stock'}</option>
-          <option value="low">{isBn ? 'কম স্টক (Low Stock)' : 'Low Stock'}</option>
-          <option value="out">{isBn ? 'আউট অব স্টক' : 'Out of Stock'}</option>
+          <option value="all">{'All Stock'}</option>
+          <option value="normal">{'Normal Stock'}</option>
+          <option value="low">{'Low Stock'}</option>
+          <option value="out">{'Out of Stock'}</option>
         </select>
 
         {/* Status Filter (Active / Inactive) */}
         <select
-          aria-label={isBn ? 'স্ট্যাটাস' : 'Status'}
+          aria-label={'Status'}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as any)}
           className="w-full sm:w-auto py-1.5 px-3 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium text-slate-700"
         >
-          <option value="active">{isBn ? 'সক্রিয় পণ্য' : 'Active Products'}</option>
-          <option value="inactive">{isBn ? 'আর্কাইভ/নিষ্ক্রিয়' : 'Archived / Inactive'}</option>
-          <option value="all">{isBn ? 'সকল পণ্য' : 'All'}</option>
+          <option value="active">{'Active Products'}</option>
+          <option value="inactive">{'Archived / Inactive'}</option>
+          <option value="all">{'All'}</option>
         </select>
       </div>
 
@@ -357,13 +355,13 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
               <tr>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'পণ্যের বিবরণ' : 'Product Info'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'কোড / বারকোড' : 'Code / Barcode'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'ক্যাটাগরি' : 'Category'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'ক্রয়মূল্য' : 'Cost'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'বিক্রয়মূল্য' : 'Price'}</th>
-                <th className="px-4 py-3 font-semibold text-center">{isBn ? 'স্টক পরিমাণ' : 'Stock'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>
+                <th className="px-4 py-3 font-semibold">{'Product Info'}</th>
+                <th className="px-4 py-3 font-semibold">{'Code / Barcode'}</th>
+                <th className="px-4 py-3 font-semibold">{'Category'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Cost'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Price'}</th>
+                <th className="px-4 py-3 font-semibold text-center">{'Stock'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -386,18 +384,18 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                         </span>
                         {product.isActive === false && (
                           <span className="text-[10px] bg-slate-200 text-slate-700 px-1 py-0.2 rounded font-medium">
-                            {isBn ? 'আর্কাইভড' : 'Archived'}
+                            {'Archived'}
                           </span>
                         )}
                       </div>
                       <div className="text-[11px] text-slate-600 flex items-center gap-2 mt-0.5">
-                        {product.brand && <span>ব্র্যান্ড: {product.brand}</span>}
+                        {product.brand && <span>Brand: {product.brand}</span>}
                         {product.hasVariants && (
                           <span className="text-blue-700 bg-blue-50 px-1 py-0.2 rounded font-medium">
-                            {product.variants?.length} টি ভ্যারিয়েন্ট
+                            {product.variants?.length} Variants
                           </span>
                         )}
-                        {product.model && <span>মডেল: {product.model}</span>}
+                        {product.model && <span>Model: {product.model}</span>}
                       </div>
                     </td>
 
@@ -420,7 +418,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                     <td className="px-4 py-3 text-right font-mono-num font-bold text-slate-900">
                       {formatCurrency(product.salePrice, lang)}
                       <span className="text-[10px] text-emerald-600 block font-normal">
-                        লাভ: {toBnNumber(margin)}%
+                        Margin: {margin}%
                       </span>
                     </td>
 
@@ -439,7 +437,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                       </span>
                       {isOutOfStock && (
                         <span className="block text-[9px] text-rose-600 font-medium mt-0.5">
-                          {isBn ? 'স্টক শূন্য' : 'Out of stock'}
+                          {'Out of stock'}
                         </span>
                       )}
                     </td>
@@ -449,14 +447,14 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                         <button
                           onClick={() => setBarcodeModalProduct(product)}
                           className="p-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
-                          title={isBn ? 'বারকোড দেখুন' : 'Barcode'}
+                          title={'Barcode'}
                         >
                           <Barcode className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(product)}
                           className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                          title={isBn ? 'এডিট' : 'Edit'}
+                          title={'Edit'}
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
@@ -465,19 +463,19 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                             <button
                               onClick={() => updateProduct(product.id, { isActive: true })}
                               className="p-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors"
-                              title={isBn ? 'পুনরায় সক্রিয় করুন' : 'Reactivate'}
+                              title={'Reactivate'}
                             >
                               <RotateCcw className="w-4 h-4" />
                             </button>
                           ) : (
                             <button
                               onClick={() => {
-                                if (confirm(isBn ? `আপনি কি '${product.name}' মুছে/আর্কাইভ করতে চান?` : `Archive/Delete '${product.name}'?`)) {
+                                if (confirm(`Archive/Delete '${product.name}'?`)) {
                                   deleteProduct(product.id);
                                 }
                               }}
                               className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
-                              title={isBn ? 'মুছুন/আর্কাইভ' : 'Delete/Archive'}
+                              title={'Delete/Archive'}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -492,7 +490,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
               {filteredProducts.length === 0 && (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
-                    {isBn ? 'কোনো পণ্য পাওয়া যায়নি।' : 'No products found.'}
+                    {'No products found.'}
                   </td>
                 </tr>
               )}
@@ -510,8 +508,8 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                 <Package className="w-5 h-5 text-emerald-600" />
                 <span>
                   {editingProduct
-                    ? (isBn ? 'পণ্য সংশোধন (Edit Product)' : 'Edit Product')
-                    : (isBn ? 'নতুন পণ্য এন্ট্রি (Add Product)' : 'Add New Product')}
+                    ? ('Edit Product')
+                    : ('Add New Product')}
                 </span>
               </h3>
               <button
@@ -528,23 +526,23 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
               <div className="p-3 bg-emerald-50/50 border border-emerald-200/80 rounded-xl flex items-center justify-between">
                 <div>
                   <span className="font-bold text-slate-800 block">
-                    {isBn ? 'ব্যবসার ধরন (Adaptive Form)' : 'Business Type Adaptive Mode'}
+                    {'Business Type Adaptive Mode'}
                   </span>
                   <span className="text-[11px] text-slate-600">
-                    {isBn ? 'নির্বাচিত ধরন অনুযায়ী ফিল্ড স্বয়ংক্রিয়ভাবে পরিবর্তিত হবে' : 'Form fields adapt to your shop category'}
+                    {'Form fields adapt to your shop category'}
                   </span>
                 </div>
                 <select
-                  aria-label={isBn ? 'ব্যবসার ধরন নির্বাচন করুন' : 'Select Business Type'}
+                  aria-label={'Select Business Type'}
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value as BusinessType)}
                   className="py-1 px-2.5 bg-white border border-emerald-300 rounded-lg text-xs font-semibold text-emerald-900 focus:outline-none"
                 >
-                  <option value="clothing">{isBn ? 'গার্মেন্টস / ক্লথিং' : 'Clothing / Fashion'}</option>
-                  <option value="grocery">{isBn ? 'মুদি / সুপার শপ' : 'Grocery / Super Shop'}</option>
-                  <option value="electronics">{isBn ? 'ইলেকট্রনিক্স / মোবাইল' : 'Electronics / Mobile'}</option>
-                  <option value="pharmacy">{isBn ? 'ফার্মেসি' : 'Pharmacy'}</option>
-                  <option value="general">{isBn ? 'সাধারণ খুচরা ব্যবসা' : 'General Retail'}</option>
+                  <option value="clothing">{'Clothing / Fashion'}</option>
+                  <option value="grocery">{'Grocery / Super Shop'}</option>
+                  <option value="electronics">{'Electronics / Mobile'}</option>
+                  <option value="pharmacy">{'Pharmacy'}</option>
+                  <option value="general">{'General Retail'}</option>
                 </select>
               </div>
 
@@ -552,21 +550,21 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="md:col-span-2">
                   <label className="block font-semibold text-slate-700 mb-1">
-                    {isBn ? 'পণ্যের নাম *' : 'Product Name *'}
+                    {'Product Name *'}
                   </label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. টেস্ট প্রোডাক্ট (Test Product)"
+                    placeholder="e.g. Test Product"
                     className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">
-                    {isBn ? 'প্রোডাক্ট কোড / SKU *' : 'Product Code / SKU *'}
+                    {'Product Code / SKU *'}
                   </label>
                   <input
                     type="text"
@@ -580,7 +578,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
 
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">
-                    {isBn ? 'বারকোড (Barcode) *' : 'Barcode *'}
+                    {'Barcode *'}
                   </label>
                   <input
                     type="text"
@@ -595,7 +593,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="font-medium text-slate-700">
-                      {isBn ? 'ক্যাটাগরি *' : 'Category *'}
+                      {'Category *'}
                     </label>
                     <button
                       type="button"
@@ -603,7 +601,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                       className="text-[11px] text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-0.5"
                     >
                       <FolderPlus className="w-3 h-3" />
-                      <span>{showNewCatInput ? (isBn ? 'তালিকা' : 'List') : (isBn ? '+ নতুন ক্যাটাগরি' : '+ New Cat')}</span>
+                      <span>{showNewCatInput ? ('List') : ('+ New Cat')}</span>
                     </button>
                   </div>
 
@@ -613,7 +611,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                         type="text"
                         value={newCatName}
                         onChange={(e) => setNewCatName(e.target.value)}
-                        placeholder={isBn ? 'নতুন ক্যাটাগরির নাম...' : 'New category name...'}
+                        placeholder={'New category name...'}
                         className="flex-1 p-2 border border-emerald-300 rounded-lg focus:outline-none text-xs"
                       />
                       <button
@@ -626,7 +624,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                     </div>
                   ) : (
                     <select
-                      aria-label={isBn ? 'ক্যাটাগরি' : 'Category'}
+                      aria-label={'Category'}
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white font-medium"
@@ -640,7 +638,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
 
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">
-                    {isBn ? 'ব্র্যান্ড' : 'Brand'}
+                    {'Brand'}
                   </label>
                   <input
                     type="text"
@@ -655,12 +653,12 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
               {/* Pricing Section */}
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                 <span className="font-bold text-slate-800 block">
-                  {isBn ? 'মূল্য নির্ধারণ (Pricing)' : 'Pricing Details'}
+                  {'Pricing Details'}
                 </span>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'ক্রয়মূল্য (৳) *' : 'Purchase Cost *'}
+                      {'Purchase Cost *'}
                     </label>
                     <input
                       type="number"
@@ -675,7 +673,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
 
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'বিক্রয়মূল্য (৳) *' : 'Sale Price *'}
+                      {'Sale Price *'}
                     </label>
                     <input
                       type="number"
@@ -690,7 +688,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
 
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'পাইকারি মূল্য (৳)' : 'Wholesale Price'}
+                      {'Wholesale Price'}
                     </label>
                     <input
                       type="number"
@@ -704,20 +702,20 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
 
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'পরিমাপক একক (Unit)' : 'Unit'}
+                      {'Unit'}
                     </label>
                     <select
-                      aria-label={isBn ? 'পরিমাপক একক' : 'Unit'}
+                      aria-label={'Unit'}
                       value={unit}
                       onChange={(e) => setUnit(e.target.value)}
                       className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white"
                     >
-                      <option value="pcs">Pcs (পিস)</option>
-                      <option value="kg">Kg (কেজি)</option>
-                      <option value="bag">Bag (বস্তা)</option>
-                      <option value="bottle">Bottle (বোতল)</option>
-                      <option value="box">Box (বক্স)</option>
-                      <option value="meter">Meter (মিটার)</option>
+                      <option value="pcs">Pcs</option>
+                      <option value="kg">Kg</option>
+                      <option value="bag">Bag</option>
+                      <option value="bottle">Bottle</option>
+                      <option value="box">Box</option>
+                      <option value="meter">Meter</option>
                     </select>
                   </div>
                 </div>
@@ -726,12 +724,12 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
               {/* Stock Details */}
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                 <span className="font-bold text-slate-800 block">
-                  {isBn ? 'স্টক ব্যবস্থাপনা' : 'Stock Management'}
+                  {'Stock Management'}
                 </span>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'প্রারম্ভিক / বর্তমান স্টক *' : 'Opening / Current Stock *'}
+                      {'Opening / Current Stock *'}
                     </label>
                     <input
                       type="number"
@@ -744,14 +742,14 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                     />
                     {hasVariants && (
                       <span className="text-[10px] text-blue-600 mt-0.5 block">
-                        {isBn ? 'ভ্যারিয়েন্ট চালু থাকায় ভ্যারিয়েন্টের স্টক যোগফল গৃহীত হবে' : 'Sum of variant stocks'}
+                        {'Sum of variant stocks'}
                       </span>
                     )}
                   </div>
 
                   <div>
                     <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      {isBn ? 'কম স্টক অ্যালার্ট সীমা' : 'Low Stock Alert'}
+                      {'Low Stock Alert'}
                     </label>
                     <input
                       type="number"
@@ -775,7 +773,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                         className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                       />
                       <span className="font-semibold text-slate-800 text-xs">
-                        {isBn ? 'রং ও সাইজ ভ্যারিয়েন্ট রয়েছে (Color / Size Variants)' : 'Has Color / Size Variants'}
+                        {'Has Color / Size Variants'}
                       </span>
                     </label>
 
@@ -783,7 +781,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                       <div className="mt-3 space-y-2 bg-white p-3 rounded-lg border border-slate-200">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-[11px] font-bold text-slate-700">
-                            {isBn ? 'ভ্যারিয়েন্ট তালিকা:' : 'Variant Rows:'}
+                            {'Variant Rows:'}
                           </span>
                           <button
                             type="button"
@@ -791,7 +789,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                             className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
                           >
                             <Plus className="w-3 h-3" />
-                            <span>{isBn ? 'ভ্যারিয়েন্ট যোগ করুন' : 'Add Variant'}</span>
+                            <span>{'Add Variant'}</span>
                           </button>
                         </div>
 
@@ -799,7 +797,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                           <div key={v.id || idx} className="grid grid-cols-4 gap-1.5 items-center">
                             <input
                               type="text"
-                              placeholder={isBn ? 'রং (e.g. Black)' : 'Color'}
+                              placeholder={'Color'}
                               value={v.color}
                               onChange={(e) => {
                                 const val = e.target.value;
@@ -809,7 +807,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                             />
                             <input
                               type="text"
-                              placeholder={isBn ? 'সাইজ (e.g. L, XL)' : 'Size'}
+                              placeholder={'Size'}
                               value={v.size}
                               onChange={(e) => {
                                 const val = e.target.value;
@@ -820,7 +818,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                             <input
                               type="number"
                               min="0"
-                              placeholder={isBn ? 'স্টক' : 'Stock'}
+                              placeholder={'Stock'}
                               value={v.stock}
                               onChange={(e) => {
                                 const val = Number(e.target.value) || 0;
@@ -864,15 +862,15 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                   onClick={closeModal}
                   className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
                 >
-                  {isBn ? 'বাতিল' : 'Cancel'}
+                  {'Cancel'}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs"
                 >
                   {editingProduct
-                    ? (isBn ? 'আপডেট সংরক্ষণ করুন' : 'Save Changes')
-                    : (isBn ? 'পণ্য সংরক্ষণ করুন' : 'Save Product')}
+                    ? ('Save Changes')
+                    : ('Save Product')}
                 </button>
               </div>
             </form>
@@ -914,7 +912,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ isAddModalOpen: prop
                 onClick={() => setBarcodeModalProduct(null)}
                 className="w-full py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg"
               >
-                {isBn ? 'বন্ধ করুন' : 'Close'}
+                {'Close'}
               </button>
             </div>
           </div>

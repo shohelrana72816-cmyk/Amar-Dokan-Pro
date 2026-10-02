@@ -35,8 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
 
   interface NavItem {
     id: string;
-    labelBn: string;
-    labelEn: string;
+    label: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: number;
     badgeColor?: string;
@@ -46,36 +45,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
   const navItems: NavItem[] = [
     {
       id: 'dashboard',
-      labelBn: 'ড্যাশবোর্ড',
-      labelEn: 'Dashboard',
+      label: 'Dashboard',
       icon: LayoutDashboard,
       moduleKey: 'dashboard',
     },
     {
       id: 'pos',
-      labelBn: 'নতুন বিক্রি (POS)',
-      labelEn: 'POS / New Sale',
+      label: 'POS / New Sale',
       icon: ShoppingCart,
       moduleKey: 'pos',
     },
     {
       id: 'sales',
-      labelBn: 'বিক্রির খাতা ও চালান',
-      labelEn: 'Sales & Invoices',
+      label: 'Sales & Invoices',
       icon: Receipt,
       moduleKey: 'pos',
     },
     {
       id: 'products',
-      labelBn: 'পণ্য তালিকা ও ভ্যারিয়েন্ট',
-      labelEn: 'Products & Variants',
+      label: 'Products & Variants',
       icon: Package,
       moduleKey: 'products',
     },
     {
       id: 'inventory',
-      labelBn: 'স্টক ও ইনভেন্টরি',
-      labelEn: 'Stock & Inventory',
+      label: 'Stock & Inventory',
       icon: Boxes,
       badge: lowStockCount > 0 ? lowStockCount : undefined,
       badgeColor: 'bg-rose-500 text-white',
@@ -83,15 +77,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
     },
     {
       id: 'purchases',
-      labelBn: 'কেনাকাটা (Purchase)',
-      labelEn: 'Purchases',
+      label: 'Purchases',
       icon: Truck,
       moduleKey: 'purchases',
     },
     {
       id: 'customers',
-      labelBn: 'কাস্টমার ও বাকির খাতা',
-      labelEn: 'Customers & Due Ledger',
+      label: 'Customers & Due Ledger',
       icon: Users,
       badge: dueCustomerCount > 0 ? dueCustomerCount : undefined,
       badgeColor: 'bg-amber-600 text-white',
@@ -99,43 +91,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
     },
     {
       id: 'suppliers',
-      labelBn: 'সাপ্লায়ার ও মহাজন খাতা',
-      labelEn: 'Suppliers & Due',
+      label: 'Suppliers & Due',
       icon: Building,
       moduleKey: 'suppliers',
     },
     {
       id: 'accounts',
-      labelBn: 'হিসাবের খাতা ও খরচ',
-      labelEn: 'Cash, Bank & Expense',
+      label: 'Cash, Bank & Expense',
       icon: Wallet,
       moduleKey: 'accounts',
     },
     {
       id: 'reports',
-      labelBn: 'লাভ-ক্ষতি ও রিপোর্ট',
-      labelEn: 'Profit/Loss & Reports',
+      label: 'Profit/Loss & Reports',
       icon: TrendingUp,
       moduleKey: 'reports',
     },
     {
       id: 'employees',
-      labelBn: 'কর্মচারী ও বেতন',
-      labelEn: 'Employees & Payroll',
+      label: 'Employees & Payroll',
       icon: UserCheck,
       moduleKey: 'employees',
     },
     {
       id: 'branches',
-      labelBn: 'মাল্টি-ব্রাঞ্চ ও ট্রান্সফার',
-      labelEn: 'Branches & Transfer',
+      label: 'Branches & Transfer',
       icon: GitFork,
       moduleKey: 'branches',
     },
     {
       id: 'settings',
-      labelBn: 'দোকানের সেটিংস ও ব্যাকআপ',
-      labelEn: 'Settings & Backup',
+      label: 'Settings & Backup',
       icon: Settings,
       moduleKey: 'settings',
     },
@@ -184,7 +170,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
                     }`}
                   />
                   <span className="truncate">
-                    {isBn ? item.labelBn : item.labelEn}
+                    {item.label}
                   </span>
                 </div>
 
@@ -207,7 +193,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
             <span className="truncate font-medium">{settings.shopName}</span>
           </div>
           <div className="mt-1 text-[11px] text-slate-600 flex items-center justify-between">
-            <span>{isBn ? 'সক্রিয় ব্যবহারকারী:' : 'Active Role:'}</span>
+            <span>Active Role:</span>
             <span className="font-semibold text-slate-800 capitalize">{currentUserRole}</span>
           </div>
         </div>

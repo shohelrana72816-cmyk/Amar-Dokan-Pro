@@ -21,7 +21,7 @@ interface PurchasesViewProps {
 
 export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: propIsAddModalOpen, onCloseAddModal: propOnCloseAddModal }) => {
   const { purchases, suppliers, products, recordPurchase, deletePurchase, isAdmin, settings, activeBranchId } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -171,12 +171,10 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <Truck className="w-5 h-5 text-emerald-600" />
-            <span>{isBn ? 'কেনাকাটা ও ক্রয় চালান (Purchase)' : 'Purchase Invoices'}</span>
+            <span>{'Purchase Invoices'}</span>
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
-            {isBn
-              ? 'সাপ্লায়ার থেকে নতুন চালান রিসিভ করলে স্বয়ংক্রিয়ভাবে স্টক বৃদ্ধি ও বকেয়া হিসাব যুক্ত হয়'
-              : 'Receiving purchases automatically increments stock & logs supplier dues'}
+            {'Receiving purchases automatically increments stock & logs supplier dues'}
           </p>
         </div>
 
@@ -185,7 +183,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
           className="flex items-center gap-2 px-3.5 py-2 text-xs md:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>{isBn ? 'নতুন ক্রয় এন্ট্রি (New Purchase)' : 'New Purchase'}</span>
+          <span>{'New Purchase'}</span>
         </button>
       </div>
 
@@ -197,7 +195,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isBn ? 'চালান নম্বর বা সাপ্লায়ার দিয়ে খুঁজুন...' : 'Search invoice or supplier...'}
+            placeholder={'Search invoice or supplier...'}
             className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-slate-50/50"
           />
         </div>
@@ -209,15 +207,15 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
               <tr>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'চালান নং' : 'Invoice #'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'তারিখ' : 'Date'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'সাপ্লায়ার / মহাজন' : 'Supplier'}</th>
-                <th className="px-4 py-3 font-semibold text-center">{isBn ? 'আইটেম সংখ্যা' : 'Items'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'মোট মূল্য' : 'Total'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'পরিশোধ' : 'Paid'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'বকেয়া' : 'Due'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'পেমেন্ট মাধ্যম' : 'Method'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>
+                <th className="px-4 py-3 font-semibold">{'Invoice #'}</th>
+                <th className="px-4 py-3 font-semibold">{'Date'}</th>
+                <th className="px-4 py-3 font-semibold">{'Supplier'}</th>
+                <th className="px-4 py-3 font-semibold text-center">{'Items'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Total'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Paid'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Due'}</th>
+                <th className="px-4 py-3 font-semibold">{'Method'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -254,17 +252,17 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                       <button
                         onClick={() => setSelectedPurchase(purchase)}
                         className="flex items-center gap-1 px-2 py-1 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded font-medium transition-colors"
-                        title={isBn ? 'চালান বিস্তারিত দেখুন' : 'View Bill Details'}
+                        title={'View Bill Details'}
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>{isBn ? 'দেখুন' : 'View'}</span>
+                        <span>{'View'}</span>
                       </button>
 
                       {isAdmin && (
                         <button
                           onClick={() => setPurchaseToDelete(purchase)}
                           className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
-                          title={isBn ? 'ক্রয় চালান মুছে ফেলুন (অ্যাডমিন অনলি)' : 'Delete Purchase (Admin Only)'}
+                          title={'Delete Purchase (Admin Only)'}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -277,7 +275,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
               {filteredPurchases.length === 0 && (
                 <tr>
                   <td colSpan={9} className="py-12 text-center text-slate-400 text-xs">
-                    {isBn ? 'কোনো ক্রয় চালান পাওয়া যায়নি।' : 'No purchase records found.'}
+                    {'No purchase records found.'}
                   </td>
                 </tr>
               )}
@@ -293,7 +291,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
             <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
               <h3 className="font-bold text-sm md:text-base text-slate-900 flex items-center gap-2">
                 <Truck className="w-5 h-5 text-emerald-600" />
-                <span>{isBn ? 'নতুন ক্রয় চালান এন্ট্রি (New Purchase)' : 'New Purchase Order'}</span>
+                <span>{'New Purchase Order'}</span>
               </h3>
               <button
                 onClick={closeModal}
@@ -306,23 +304,23 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
             <form onSubmit={handleSubmitPurchase} className="p-5 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'সাপ্লায়ার / মহাজন নির্বাচন *' : 'Supplier *'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Supplier *'}</label>
                   <select
-                    aria-label={isBn ? 'সাপ্লায়ার নির্বাচন করুন' : 'Select Supplier'}
+                    aria-label={'Select Supplier'}
                     value={supplierId}
                     onChange={(e) => setSupplierId(e.target.value)}
                     className="w-full p-2 border border-slate-200 rounded-lg bg-white"
                   >
                     {suppliers.map(s => (
                       <option key={s.id} value={s.id}>
-                        {s.company || s.name} (বকেয়া: ৳{s.currentDue})
+                        {s.company || s.name} (Due: ৳{s.currentDue})
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'চালান নম্বর (Invoice #)' : 'Bill / Invoice #'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Bill / Invoice #'}</label>
                   <input
                     type="text"
                     value={invoiceNumber}
@@ -336,14 +334,14 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
               {/* Items Table */}
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
                 <div className="flex items-center justify-between pb-1 border-b">
-                  <span className="font-bold text-slate-800">{isBn ? 'ক্রয়কৃত পণ্যের বিবরণ' : 'Purchase Items'}</span>
+                  <span className="font-bold text-slate-800">{'Purchase Items'}</span>
                   <button
                     type="button"
                     onClick={addItemRow}
                     className="text-xs font-semibold text-emerald-700 hover:underline flex items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>{isBn ? '+ পণ্য যোগ' : '+ Add Item'}</span>
+                    <span>{'+ Add Item'}</span>
                   </button>
                 </div>
 
@@ -352,7 +350,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                     <div key={idx} className="grid grid-cols-12 gap-2 items-center bg-white p-2 rounded-lg border border-slate-200">
                       <div className="col-span-5">
                         <select
-                          aria-label={isBn ? 'পণ্য নির্বাচন' : 'Select Product'}
+                          aria-label={'Select Product'}
                           value={item.productId}
                           onChange={(e) => handleItemChange(idx, 'productId', e.target.value)}
                           className="w-full p-1.5 border border-slate-200 rounded text-xs"
@@ -410,7 +408,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
               {/* Extra Costs & Discount */}
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-600 mb-1">{isBn ? 'ছাড় (Discount ৳)' : 'Discount (৳)'}</label>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">{'Discount (৳)'}</label>
                   <input
                     type="number"
                     min="0"
@@ -420,7 +418,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-600 mb-1">{isBn ? 'পরিবহন খরচ (Transport)' : 'Transport Cost'}</label>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">{'Transport Cost'}</label>
                   <input
                     type="number"
                     min="0"
@@ -430,7 +428,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-600 mb-1">{isBn ? 'অন্যান্য খরচ' : 'Other Cost'}</label>
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">{'Other Cost'}</label>
                   <input
                     type="number"
                     min="0"
@@ -444,13 +442,13 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
               {/* Payment Row */}
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
                 <div className="flex justify-between items-center text-sm font-bold text-slate-900">
-                  <span>{isBn ? 'সর্বমোট ক্রয়মূল্য:' : 'Total Payable:'}</span>
+                  <span>{'Total Payable:'}</span>
                   <span className="font-mono-num text-emerald-800 text-base">{formatCurrency(total, lang)}</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
                   <div>
-                    <label className="block font-medium text-slate-700 mb-1">{isBn ? 'পরিশোধিত টাকা (Paid) *' : 'Paid Amount *'}</label>
+                    <label className="block font-medium text-slate-700 mb-1">{'Paid Amount *'}</label>
                     <input
                       type="number"
                       min="0"
@@ -462,23 +460,23 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                   </div>
 
                   <div>
-                    <label className="block font-medium text-slate-700 mb-1">{isBn ? 'পেমেন্ট মাধ্যম' : 'Payment Method'}</label>
+                    <label className="block font-medium text-slate-700 mb-1">{'Payment Method'}</label>
                     <select
-                      aria-label={isBn ? 'পেমেন্ট মাধ্যম নির্বাচন' : 'Payment Method'}
+                      aria-label={'Payment Method'}
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value as any)}
                       className="w-full p-2 border border-slate-200 rounded-lg bg-white capitalize"
                     >
-                      <option value="cash">Cash (ক্যাশ)</option>
-                      <option value="bank">Bank (ব্যাংক)</option>
-                      <option value="bkash">bKash (বিকাশ)</option>
+                      <option value="cash">Cash</option>
+                      <option value="bank">Bank</option>
+                      <option value="bkash">bKash</option>
                     </select>
                   </div>
                 </div>
 
                 {due > 0 && (
                   <div className="flex justify-between text-xs font-bold text-rose-700 bg-rose-50 p-2 rounded-lg">
-                    <span>{isBn ? 'সাপ্লায়ার বাকি থাকবে (Supplier Due):' : 'Pending Due:'}</span>
+                    <span>{'Pending Due:'}</span>
                     <span className="font-mono-num">{formatCurrency(due, lang)}</span>
                   </div>
                 )}
@@ -490,13 +488,13 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                   onClick={closeModal}
                   className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
                 >
-                  {isBn ? 'বাতিল' : 'Cancel'}
+                  {'Cancel'}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
                 >
-                  {isBn ? 'চালান গ্রহণ ও স্টক বৃদ্ধি করুন' : 'Confirm Purchase'}
+                  {'Confirm Purchase'}
                 </button>
               </div>
             </form>
@@ -515,7 +513,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-slate-900">
-                    {isBn ? 'ক্রয় চালান বিস্তারিত' : 'Purchase Bill Details'}
+                    {'Purchase Bill Details'}
                   </h3>
                   <span className="text-[11px] text-slate-500 font-mono">
                     {selectedPurchase.invoiceNumber} · {selectedPurchase.supplierName}
@@ -532,11 +530,11 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
 
             <div className="space-y-3 text-xs">
               <div className="flex justify-between text-slate-600">
-                <span>{isBn ? 'তারিখ' : 'Date'}:</span>
+                <span>{'Date'}:</span>
                 <span className="font-medium text-slate-900">{formatDate(selectedPurchase.date, lang)}</span>
               </div>
               <div className="flex justify-between text-slate-600">
-                <span>{isBn ? 'পেমেন্ট মাধ্যম' : 'Payment Method'}:</span>
+                <span>{'Payment Method'}:</span>
                 <span className="font-medium text-slate-900 capitalize">{selectedPurchase.paymentMethod}</span>
               </div>
 
@@ -544,10 +542,10 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 border-b text-slate-600">
                     <tr>
-                      <th className="p-2 font-semibold">{isBn ? 'পণ্য' : 'Item'}</th>
-                      <th className="p-2 font-semibold text-center">{isBn ? 'পরিমাণ' : 'Qty'}</th>
-                      <th className="p-2 font-semibold text-right">{isBn ? 'দর' : 'Price'}</th>
-                      <th className="p-2 font-semibold text-right">{isBn ? 'মোট' : 'Total'}</th>
+                      <th className="p-2 font-semibold">{'Item'}</th>
+                      <th className="p-2 font-semibold text-center">{'Qty'}</th>
+                      <th className="p-2 font-semibold text-right">{'Price'}</th>
+                      <th className="p-2 font-semibold text-right">{'Total'}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -565,16 +563,16 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
 
               <div className="bg-slate-50 p-3 rounded-xl space-y-1.5 border border-slate-200">
                 <div className="flex justify-between text-slate-700">
-                  <span>{isBn ? 'মোট ক্রয় মূল্য' : 'Subtotal'}:</span>
+                  <span>{'Subtotal'}:</span>
                   <span className="font-mono-num font-bold">{formatCurrency(selectedPurchase.total, lang)}</span>
                 </div>
                 <div className="flex justify-between text-emerald-700">
-                  <span>{isBn ? 'পরিশোধিত' : 'Paid'}:</span>
+                  <span>{'Paid'}:</span>
                   <span className="font-mono-num font-bold">{formatCurrency(selectedPurchase.paid, lang)}</span>
                 </div>
                 {selectedPurchase.due > 0 && (
                   <div className="flex justify-between text-rose-700 font-bold">
-                    <span>{isBn ? 'বকেয়া' : 'Due'}:</span>
+                    <span>{'Due'}:</span>
                     <span className="font-mono-num">{formatCurrency(selectedPurchase.due, lang)}</span>
                   </div>
                 )}
@@ -587,7 +585,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 onClick={() => setSelectedPurchase(null)}
                 className="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg"
               >
-                {isBn ? 'বন্ধ করুন' : 'Close'}
+                {'Close'}
               </button>
             </div>
           </div>
@@ -605,7 +603,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-slate-900">
-                    {isBn ? 'Delete Purchase? (ক্রয় চালান মুছে ফেলবেন?)' : 'Delete Purchase?'}
+                    {'Delete Purchase?'}
                   </h3>
                   <span className="text-[11px] text-slate-500 font-mono">
                     {purchaseToDelete.invoiceNumber} · {purchaseToDelete.supplierName}
@@ -623,29 +621,25 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
 
             <div className="space-y-2 text-xs text-slate-700">
               <p className="font-medium text-slate-800">
-                {isBn
-                  ? 'Are you sure you want to delete this purchase? Related stock, supplier balance and account transactions may be affected.'
-                  : 'Are you sure you want to delete this purchase? Related stock, supplier balance and account transactions may be affected.'}
+                {'Are you sure you want to delete this purchase? Related stock, supplier balance and account transactions may be affected.'}
               </p>
               <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl space-y-1 text-rose-900 text-[11px]">
                 <div className="flex justify-between font-semibold">
-                  <span>{isBn ? 'মোট ক্রয় মূল্য' : 'Total Amount'}:</span>
+                  <span>{'Total Amount'}:</span>
                   <span className="font-mono-num">{formatCurrency(purchaseToDelete.total, lang)}</span>
                 </div>
                 <div className="flex justify-between text-emerald-800">
-                  <span>{isBn ? 'পরিশোধিত টাকা একাউন্টে ফেরত হবে' : 'Paid to restore to account'}:</span>
+                  <span>{'Paid to restore to account'}:</span>
                   <span className="font-mono-num">{formatCurrency(purchaseToDelete.paid, lang)}</span>
                 </div>
                 {purchaseToDelete.due > 0 && (
                   <div className="flex justify-between text-rose-800">
-                    <span>{isBn ? 'সাপ্লায়ার বকেয়া কমে যাবে' : 'Supplier due reduced'}:</span>
+                    <span>{'Supplier due reduced'}:</span>
                     <span className="font-mono-num">{formatCurrency(purchaseToDelete.due, lang)}</span>
                   </div>
                 )}
                 <p className="pt-1 text-rose-700 text-[10px]">
-                  {isBn
-                    ? '⚠ চালানের পণ্যের স্টক ইনভেন্টরি থেকে হ্রাস করা হবে।'
-                    : '⚠ Purchased items will be deducted from product stock inventory.'}
+                  {'⚠ Purchased items will be deducted from product stock inventory.'}
                 </p>
               </div>
             </div>
@@ -657,7 +651,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 onClick={() => setPurchaseToDelete(null)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
               >
-                {isBn ? 'Cancel (বাতিল)' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="button"
@@ -674,7 +668,7 @@ export const PurchasesView: React.FC<PurchasesViewProps> = ({ isAddModalOpen: pr
                 className="px-4 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>{isDeletingPurchase ? (isBn ? 'মুছে ফেলা হচ্ছে...' : 'Deleting...') : (isBn ? 'Delete Purchase (মুছে ফেলুন)' : 'Delete Purchase')}</span>
+                <span>{isDeletingPurchase ? ('Deleting...') : ('Delete Purchase')}</span>
               </button>
             </div>
           </div>

@@ -1,16 +1,16 @@
 import { Product, Customer, Supplier, Account, Expense, Employee, Branch, ShopSettings, Sale, Purchase, StockMovement } from '../types';
 
 export const initialSettings: ShopSettings = {
-  shopName: 'আমার দোকান প্রো (Amar Dokan Pro)',
-  tagline: 'এক অ্যাপেই দোকানের বিক্রি, কেনাকাটা, স্টক, হিসাব ও ব্যবসা পরিচালনা',
-  address: 'বাড়ি নং ১২, রোড নং ৪, ধানমন্ডি, ঢাকা-১২০৫',
-  mobile: '০১৭১১-২২৩৩৪৪',
+  shopName: 'Amar Dokan Pro',
+  tagline: 'All-in-one Smart POS, Inventory & Business Management',
+  address: 'House 12, Road 4, Dhanmondi, Dhaka-1205',
+  mobile: '01711-223344',
   email: 'info@amardokanpro.com',
   currency: '৳',
   vatTaxRate: 5,
   invoiceFormat: 'thermal',
   businessType: 'clothing',
-  language: 'bn',
+  language: 'en',
   uiMode: 'advanced',
 };
 
@@ -620,7 +620,7 @@ export const initialStockMovements: StockMovement[] = [
     newStock: 30,
     reference: 'BILL-BEX-9921',
     branchId: 'branch-1',
-    note: 'নতুন চালান রিসিভড',
+    note: 'New shipment received',
   },
   {
     id: 'sm-2',
@@ -633,7 +633,7 @@ export const initialStockMovements: StockMovement[] = [
     newStock: 28,
     reference: 'INV-260924-1024',
     branchId: 'branch-1',
-    note: 'POS বিক্রি',
+    note: 'POS Sale',
   },
 ];
 
@@ -655,7 +655,7 @@ export const initialAuditLogs = [
     action: 'SYSTEM_STARTUP',
     entityType: 'system',
     entityId: 'sys-1',
-    details: 'আমার দোকান প্রো সিস্টেম সক্রিয় হয়েছে।',
+    details: 'Amar Dokan Pro system startup initialized.',
     branchId: 'branch-1',
   },
 ];

@@ -14,7 +14,7 @@ import {
 
 export const BranchesView: React.FC = () => {
   const { branches, addBranch, activeBranchId, setActiveBranchId, settings } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState('');
@@ -45,10 +45,10 @@ export const BranchesView: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <Building2 className="w-5 h-5 text-emerald-600" />
-            <span>{isBn ? 'মাল্টি-ব্রাঞ্চ ও ওয়্যারহাউস পরিচালনা' : 'Multi-Branch & Warehouse Management'}</span>
+            <span>{'Multi-Branch & Warehouse Management'}</span>
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
-            {isBn ? 'একই একাউন্ট থেকে একাধিক শোরুম ও গুদামের স্টক নিয়ন্ত্রণ করুন' : 'Centralized multi-outlet & warehouse management'}
+            {'Centralized multi-outlet & warehouse management'}
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export const BranchesView: React.FC = () => {
           className="flex items-center gap-2 px-3.5 py-2 text-xs md:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>{isBn ? 'নতুন ব্রাঞ্চ খুলুন' : 'Add New Branch'}</span>
+          <span>{'Add New Branch'}</span>
         </button>
       </div>
 
@@ -80,7 +80,7 @@ export const BranchesView: React.FC = () => {
                     <span>{branch.name}</span>
                     {branch.isMain && (
                       <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-medium">
-                        {isBn ? 'প্রধান শাখা' : 'Main'}
+                        {'Main'}
                       </span>
                     )}
                   </h3>
@@ -101,7 +101,7 @@ export const BranchesView: React.FC = () => {
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs text-slate-500">
-                  {isActive ? (isBn ? 'বর্তমানে সক্রিয় শাখা' : 'Active Outlet') : (isBn ? 'নিষ্ক্রিয়' : 'Inactive')}
+                  {isActive ? ('Active Outlet') : ('Inactive')}
                 </span>
 
                 {!isActive && (
@@ -109,7 +109,7 @@ export const BranchesView: React.FC = () => {
                     onClick={() => setActiveBranchId(branch.id)}
                     className="px-3 py-1 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition-colors"
                   >
-                    {isBn ? 'এই শাখায় পরিবর্তন' : 'Switch Branch'}
+                    {'Switch Branch'}
                   </button>
                 )}
               </div>
@@ -127,7 +127,7 @@ export const BranchesView: React.FC = () => {
           >
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900">
-                {isBn ? 'নতুন শাখা বা ওয়্যারহাউস যোগ' : 'Add New Branch / Outlet'}
+                {'Add New Branch / Outlet'}
               </h3>
               <button
                 type="button"
@@ -140,31 +140,31 @@ export const BranchesView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'শাখার নাম *' : 'Branch Name *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Branch Name *'}</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. উত্তরা আউটলেট (Branch 03)"
+                  placeholder="e.g. Uttara Outlet (Branch 03)"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'ঠিকানা ও অবস্থান *' : 'Location *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Location *'}</label>
                 <input
                   type="text"
                   required
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. সেক্টর-৭, উত্তরা, ঢাকা"
+                  placeholder="e.g. Sector-7, Uttara, Dhaka"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'শাখা ম্যানেজারের মোবাইল' : 'Contact Mobile'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Contact Mobile'}</label>
                 <input
                   type="text"
                   value={mobile}
@@ -181,13 +181,13 @@ export const BranchesView: React.FC = () => {
                 onClick={() => setIsModalOpen(false)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
               >
-                {isBn ? 'শাখা যোগ করুন' : 'Create Branch'}
+                {'Create Branch'}
               </button>
             </div>
           </form>

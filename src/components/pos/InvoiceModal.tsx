@@ -15,7 +15,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
 
   if (!sale) return null;
 
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   const handlePrint = () => {
@@ -28,16 +28,16 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
       .join('%0A');
 
     const message = `*${encodeURIComponent(settings.shopName)}*%0A` +
-      `ইনভয়েস নং: ${sale.invoiceNumber}%0A` +
-      `তারিখ: ${formatDate(sale.date, 'bn')}%0A` +
-      `গ্রাহক: ${encodeURIComponent(sale.customerName)}%0A` +
+      `Invoice No: ${sale.invoiceNumber}%0A` +
+      `Date: ${formatDate(sale.date, 'en')}%0A` +
+      `Customer: ${encodeURIComponent(sale.customerName)}%0A` +
       `--------------------------------%0A` +
-      `*পণ্যসমূহ:*%0A${itemsText}%0A` +
+      `*Items:*%0A${itemsText}%0A` +
       `--------------------------------%0A` +
-      `সর্বমোট: ৳${sale.total}%0A` +
-      `পরিশোধ: ৳${sale.paid}%0A` +
-      `বকেয়া: ৳${sale.due}%0A%0A` +
-      `আমাদের সাথে কেনাকাটার জন্য ধন্যবাদ!`;
+      `Total: ৳${sale.total}%0A` +
+      `Paid: ৳${sale.paid}%0A` +
+      `Due: ৳${sale.due}%0A%0A` +
+      `Thank you for shopping with us!`;
 
     const mobileClean = sale.customerMobile?.replace(/[^0-9]/g, '') || '';
     const phoneParam = mobileClean ? `phone=${mobileClean}&` : '';
@@ -59,7 +59,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             <h3 className="text-base font-bold text-slate-900">
-              {isBn ? 'বিক্রয় সফল হয়েছে (ইনভয়েস)' : 'Sale Completed (Invoice)'}
+              {'Sale Completed (Invoice)'}
             </h3>
           </div>
 
@@ -72,7 +72,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                   format === 'thermal' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
                 }`}
               >
-                {isBn ? 'থার্মাল স্লিপ' : 'Thermal (80mm)'}
+                {'Thermal (80mm)'}
               </button>
               <button
                 onClick={() => setFormat('a4')}
@@ -80,7 +80,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                   format === 'a4' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
                 }`}
               >
-                {isBn ? 'A4 ইনভয়েস' : 'A4 Invoice'}
+                {'A4 Invoice'}
               </button>
             </div>
 
@@ -108,31 +108,31 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                 </h2>
                 <p className="text-[10px] text-slate-600">{settings.tagline}</p>
                 <p className="text-[10px] text-slate-600">{settings.address}</p>
-                <p className="text-[10px] text-slate-600 font-sans">মোবাইল: {settings.mobile}</p>
+                <p className="text-[10px] text-slate-600 font-sans">Mobile: {settings.mobile}</p>
               </div>
 
               {/* Invoice Meta */}
               <div className="py-2 border-b border-dashed border-slate-300 text-[11px] space-y-0.5">
                 <div className="flex justify-between">
-                  <span>ইনভয়েস নং:</span>
+                  <span>Invoice No:</span>
                   <span className="font-bold">{sale.invoiceNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>তারিখ ও সময়:</span>
-                  <span>{formatDate(sale.date, 'bn')} {formatTime(sale.date)}</span>
+                  <span>Date & Time:</span>
+                  <span>{formatDate(sale.date, 'en')} {formatTime(sale.date)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>কাস্টমার:</span>
+                  <span>Customer:</span>
                   <span className="font-medium truncate max-w-[170px]">{sale.customerName}</span>
                 </div>
                 {sale.customerMobile && (
                   <div className="flex justify-between">
-                    <span>ফোন:</span>
+                    <span>Phone:</span>
                     <span>{sale.customerMobile}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-slate-600">
-                  <span>বিক্রেতা:</span>
+                  <span>Served By:</span>
                   <span>{sale.servedBy}</span>
                 </div>
               </div>
@@ -140,8 +140,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
               {/* Items List */}
               <div className="py-2 border-b border-dashed border-slate-300">
                 <div className="flex justify-between font-bold text-[11px] pb-1">
-                  <span>পণ্য ও পরিমাণ</span>
-                  <span>টাকা</span>
+                  <span>Item & Qty</span>
+                  <span>Amount</span>
                 </div>
                 <div className="space-y-1.5 pt-1">
                   {sale.items.map((item, idx) => (
@@ -152,11 +152,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                       <div className="flex justify-between text-slate-600 text-[10px] pt-0.5">
                         <span>
                           {item.variantDetails && `${item.variantDetails} · `}
-                          {toBnNumber(item.quantity)} x {formatCurrency(item.unitPrice, 'bn')}
+                          {item.quantity} x {formatCurrency(item.unitPrice, 'en')}
                           {item.discount > 0 && ` (-৳${item.discount})`}
                         </span>
                         <span className="font-semibold text-slate-900 font-mono-num">
-                          {formatCurrency(item.total, 'bn')}
+                          {formatCurrency(item.total, 'en')}
                         </span>
                       </div>
                     </div>
@@ -167,33 +167,33 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
               {/* Bill Calculation */}
               <div className="py-2 border-b border-dashed border-slate-300 space-y-1 text-[11px]">
                 <div className="flex justify-between text-slate-600">
-                  <span>সাবটোটাল:</span>
-                  <span className="font-mono-num">{formatCurrency(sale.subtotal, 'bn')}</span>
+                  <span>Subtotal:</span>
+                  <span className="font-mono-num">{formatCurrency(sale.subtotal, 'en')}</span>
                 </div>
                 {sale.discount > 0 && (
                   <div className="flex justify-between text-emerald-700">
-                    <span>ছাড় (Discount):</span>
-                    <span className="font-mono-num">-{formatCurrency(sale.discount, 'bn')}</span>
+                    <span>Discount:</span>
+                    <span className="font-mono-num">-{formatCurrency(sale.discount, 'en')}</span>
                   </div>
                 )}
                 {sale.vatTaxAmount > 0 && (
                   <div className="flex justify-between text-slate-600">
-                    <span>ভ্যাট/ট্যাক্স ({toBnNumber(sale.vatTaxRate)}%):</span>
-                    <span className="font-mono-num">+{formatCurrency(sale.vatTaxAmount, 'bn')}</span>
+                    <span>VAT/Tax ({sale.vatTaxRate}%):</span>
+                    <span className="font-mono-num">+{formatCurrency(sale.vatTaxAmount, 'en')}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-xs font-bold text-slate-900 pt-1 border-t border-slate-200">
-                  <span>সর্বমোট বিল:</span>
-                  <span className="font-mono-num">{formatCurrency(sale.total, 'bn')}</span>
+                  <span>Grand Total:</span>
+                  <span className="font-mono-num">{formatCurrency(sale.total, 'en')}</span>
                 </div>
                 <div className="flex justify-between text-slate-800 pt-0.5">
-                  <span>পরিশোধ ({sale.paymentMethod}):</span>
-                  <span className="font-mono-num font-semibold">{formatCurrency(sale.paid, 'bn')}</span>
+                  <span>Paid ({sale.paymentMethod}):</span>
+                  <span className="font-mono-num font-semibold">{formatCurrency(sale.paid, 'en')}</span>
                 </div>
                 {sale.due > 0 && (
                   <div className="flex justify-between text-rose-700 font-bold">
-                    <span>বকেয়া (Due):</span>
-                    <span className="font-mono-num">{formatCurrency(sale.due, 'bn')}</span>
+                    <span>Due:</span>
+                    <span className="font-mono-num">{formatCurrency(sale.due, 'en')}</span>
                   </div>
                 )}
               </div>
@@ -207,10 +207,10 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-600 font-sans font-medium">
-                  আমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!
+                  Thank you for shopping with us!
                 </p>
                 <p className="text-[9px] text-slate-400 font-sans">
-                  সফটওয়্যার পার্টনার: Amar Dokan Pro
+                  Software Partner: Amar Dokan Pro
                 </p>
               </div>
             </div>
@@ -226,14 +226,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                   <h1 className="text-xl font-bold text-slate-900">{settings.shopName}</h1>
                   <p className="text-xs text-slate-500 mt-1">{settings.tagline}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{settings.address}</p>
-                  <p className="text-xs text-slate-500">ফোন: {settings.mobile} | ইমেইল: {settings.email}</p>
+                  <p className="text-xs text-slate-500">Phone: {settings.mobile} | Email: {settings.email}</p>
                 </div>
                 <div className="text-right">
                   <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
-                    চালান / INVOICE
+                    INVOICE
                   </span>
                   <p className="text-xs font-mono font-bold text-slate-900 mt-2">{sale.invoiceNumber}</p>
-                  <p className="text-[11px] text-slate-500">{formatDate(sale.date, 'bn')}</p>
+                  <p className="text-[11px] text-slate-500">{formatDate(sale.date, 'en')}</p>
                 </div>
               </div>
 
@@ -241,17 +241,17 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
               <div className="py-4 border-b border-slate-200 grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    বিল প্রাপক (CUSTOMER)
+                    BILL TO (CUSTOMER)
                   </span>
                   <p className="text-sm font-bold text-slate-900 mt-1">{sale.customerName}</p>
-                  {sale.customerMobile && <p className="text-xs text-slate-600">মোবাইল: {sale.customerMobile}</p>}
+                  {sale.customerMobile && <p className="text-xs text-slate-600">Mobile: {sale.customerMobile}</p>}
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    পেমেন্ট স্ট্যাটাস
+                    Payment Status
                   </span>
                   <p className="text-sm font-semibold capitalize mt-1 text-slate-800">
-                    {sale.paymentMethod} ({sale.status === 'paid' ? 'পরিশোধিত' : sale.status === 'due' ? 'বকেয়া' : 'আংশিক'})
+                    {sale.paymentMethod} ({sale.status === 'paid' ? 'Paid' : sale.status === 'due' ? 'Due' : 'Partial'})
                   </p>
                 </div>
               </div>
@@ -261,11 +261,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-slate-200 text-slate-500 text-[11px]">
-                      <th className="pb-2">ক্র.</th>
-                      <th className="pb-2">বিবরণ (Product)</th>
-                      <th className="pb-2 text-center">পরিমাণ</th>
-                      <th className="pb-2 text-right">দর</th>
-                      <th className="pb-2 text-right">মোট</th>
+                      <th className="pb-2">SL</th>
+                      <th className="pb-2">Product Description</th>
+                      <th className="pb-2 text-center">Qty</th>
+                      <th className="pb-2 text-right">Unit Price</th>
+                      <th className="pb-2 text-right">Total</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -275,7 +275,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
                         <td className="py-2">
                           <span className="font-semibold block">{item.productName}</span>
                           {item.variantDetails && (
-                            <span className="text-[10px] text-slate-500">ভ্যারিয়েন্ট: {item.variantDetails}</span>
+                            <span className="text-[10px] text-slate-500">Variant: {item.variantDetails}</span>
                           )}
                         </td>
                         <td className="py-2 text-center font-mono-num">{item.quantity}</td>
@@ -291,32 +291,32 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
               <div className="pt-3 border-t border-slate-200 flex justify-end">
                 <div className="w-64 space-y-1.5 text-xs">
                   <div className="flex justify-between text-slate-600">
-                    <span>সাবটোটাল:</span>
+                    <span>Subtotal:</span>
                     <span className="font-mono-num">{formatCurrency(sale.subtotal, lang)}</span>
                   </div>
                   {sale.discount > 0 && (
                     <div className="flex justify-between text-emerald-700">
-                      <span>ছাড় (Discount):</span>
+                      <span>Discount:</span>
                       <span className="font-mono-num">-{formatCurrency(sale.discount, lang)}</span>
                     </div>
                   )}
                   {sale.vatTaxAmount > 0 && (
                     <div className="flex justify-between text-slate-600">
-                      <span>ভ্যাট/ট্যাক্স ({sale.vatTaxRate}%):</span>
+                      <span>VAT/Tax ({sale.vatTaxRate}%):</span>
                       <span className="font-mono-num">+{formatCurrency(sale.vatTaxAmount, lang)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm font-bold text-slate-900 pt-1 border-t border-slate-200">
-                    <span>সর্বমোট (Total):</span>
+                    <span>Total:</span>
                     <span className="font-mono-num">{formatCurrency(sale.total, lang)}</span>
                   </div>
                   <div className="flex justify-between text-slate-800 font-medium">
-                    <span>পরিশোধ (Paid):</span>
+                    <span>Paid:</span>
                     <span className="font-mono-num">{formatCurrency(sale.paid, lang)}</span>
                   </div>
                   {sale.due > 0 && (
                     <div className="flex justify-between text-rose-700 font-bold">
-                      <span>বকেয়া (Due):</span>
+                      <span>Due:</span>
                       <span className="font-mono-num">{formatCurrency(sale.due, lang)}</span>
                     </div>
                   )}
@@ -326,11 +326,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
               {/* Signature & Note */}
               <div className="pt-12 flex justify-between items-end text-slate-500 text-[11px]">
                 <div>
-                  <p>পণ্য ফেরত বা পরিবর্তনের ক্ষেত্রে ৩ দিনের মধ্যে ইনভয়েস সাথে আনুন।</p>
-                  <p className="font-semibold text-slate-700 mt-1">ধন্যবাদ!</p>
+                  <p>For exchange or return, please bring this invoice within 3 days.</p>
+                  <p className="font-semibold text-slate-700 mt-1">Thank you!</p>
                 </div>
                 <div className="text-center border-t border-slate-300 pt-1 w-36">
-                  <p>কর্তৃপক্ষের স্বাক্ষর</p>
+                  <p>Authorized Signature</p>
                 </div>
               </div>
             </div>
@@ -345,14 +345,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
               className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors"
             >
               <MessageSquare className="w-4 h-4 text-emerald-600" />
-              <span>{isBn ? 'হোয়াটসঅ্যাপে পাঠান' : 'Share WhatsApp'}</span>
+              <span>{'Share WhatsApp'}</span>
             </button>
             <button
               onClick={handleCopySummary}
               className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors"
             >
               <Share2 className="w-4 h-4 text-slate-600" />
-              <span>{copied ? (isBn ? 'কপি হয়েছে!' : 'Copied!') : (isBn ? 'টেক্সট কপি' : 'Copy Text')}</span>
+              <span>{copied ? ('Copied!') : ('Copy Text')}</span>
             </button>
           </div>
 
@@ -361,14 +361,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ sale, onClose, setti
               onClick={onClose}
               className="px-4 py-2 text-xs md:text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
             >
-              {isBn ? 'বন্ধ করুন' : 'Close'}
+              {'Close'}
             </button>
             <button
               onClick={handlePrint}
               className="flex items-center gap-2 px-4 py-2 text-xs md:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors"
             >
               <Printer className="w-4 h-4" />
-              <span>{isBn ? 'ইনভয়েস প্রিন্ট' : 'Print Invoice'}</span>
+              <span>{'Print Invoice'}</span>
             </button>
           </div>
         </div>

@@ -15,12 +15,12 @@ import {
 
 export const EmployeesView: React.FC = () => {
   const { employees, addEmployee, updateEmployee, deleteEmployee, isAdmin, disburseSalary, accounts, settings, branches } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [payingEmployee, setPayingEmployee] = useState<Employee | null>(null);
-  const [payMonth, setPayMonth] = useState('সেপ্টেম্বর ২০২৬');
+  const [payMonth, setPayMonth] = useState('October 2026');
   const [payAccountId, setPayAccountId] = useState(accounts[0]?.id || '');
   const [payAmount, setPayAmount] = useState<number>(0);
 
@@ -53,7 +53,7 @@ export const EmployeesView: React.FC = () => {
     addEmployee({
       name: name.trim(),
       mobile: mobile.trim(),
-      position: position.trim() || 'স্টাফ',
+      position: position.trim() || 'Staff',
       role,
       salary: Number(salary),
       joiningDate,
@@ -67,7 +67,7 @@ export const EmployeesView: React.FC = () => {
   const handleOpenPaySalary = (emp: Employee) => {
     setPayingEmployee(emp);
     setPayAmount(emp.salary);
-    setPayMonth('সেপ্টেম্বর ২০২৬');
+    setPayMonth('October 2026');
     setPayAccountId(accounts[0]?.id || '');
   };
 
@@ -76,7 +76,7 @@ export const EmployeesView: React.FC = () => {
     if (!payingEmployee || payAmount <= 0) return;
 
     disburseSalary(payingEmployee.id, payMonth, payAccountId, payAmount);
-    alert(isBn ? `${payingEmployee.name}-এর ${payMonth} মাসের বেতন সফলভাবে প্রদান করা হয়েছে!` : 'Salary disbursed successfully!');
+    alert(`Salary of ৳${payAmount} for ${payMonth} disbursed successfully to ${payingEmployee.name}!`);
     setPayingEmployee(null);
   };
 
@@ -87,10 +87,10 @@ export const EmployeesView: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <UserCheck className="w-5 h-5 text-emerald-600" />
-            <span>{isBn ? 'কর্মচারী ও বেতন ব্যবস্থাপনা (Employees & Payroll)' : 'Employees & Payroll'}</span>
+            <span>{'Employees & Payroll'}</span>
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
-            {isBn ? 'স্টাফদের দায়িত্ব, রোল ও মাসিক বেতন পরিচালনা' : 'Manage staff roles, permissions & salary disbursements'}
+            {'Manage staff roles, permissions & salary disbursements'}
           </p>
         </div>
 
@@ -99,7 +99,7 @@ export const EmployeesView: React.FC = () => {
           className="flex items-center gap-2 px-3.5 py-2 text-xs md:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>{isBn ? 'নতুন কর্মচারী যোগ' : 'Add Employee'}</span>
+          <span>{'Add Employee'}</span>
         </button>
       </div>
 
@@ -109,12 +109,12 @@ export const EmployeesView: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
               <tr>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'নাম ও পদবি' : 'Name & Position'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'মোবাইল' : 'Mobile'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'সিস্টেম রোল' : 'System Role'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'যোগদানের তারিখ' : 'Joining Date'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'মাসিক বেতন' : 'Salary'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>
+                <th className="px-4 py-3 font-semibold">{'Name & Position'}</th>
+                <th className="px-4 py-3 font-semibold">{'Mobile'}</th>
+                <th className="px-4 py-3 font-semibold">{'System Role'}</th>
+                <th className="px-4 py-3 font-semibold">{'Joining Date'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Salary'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -141,14 +141,14 @@ export const EmployeesView: React.FC = () => {
                         className="flex items-center gap-1 px-2.5 py-1 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded font-semibold transition-colors"
                       >
                         <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{isBn ? 'বেতন দিন' : 'Pay Salary'}</span>
+                        <span>{'Pay Salary'}</span>
                       </button>
 
                       {isAdmin && (
                         <button
                           onClick={() => setEmployeeToDelete(emp)}
                           className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
-                          title={isBn ? 'কর্মচারী রেকর্ড মুছে ফেলুন (অ্যাডমিন অনলি)' : 'Delete Employee (Admin Only)'}
+                          title={'Delete Employee (Admin Only)'}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -171,7 +171,7 @@ export const EmployeesView: React.FC = () => {
           >
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900">
-                {isBn ? 'বেতন প্রদান (Disburse Salary)' : 'Pay Salary'}
+                {'Pay Salary'}
               </h3>
               <button
                 type="button"
@@ -184,12 +184,12 @@ export const EmployeesView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <span className="text-slate-500 block">কর্মচারী:</span>
+                <span className="text-slate-500 block">Employee:</span>
                 <span className="font-bold text-sm text-slate-900 block">{payingEmployee.name} ({payingEmployee.position})</span>
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'যে মাসের বেতন *' : 'Salary Month *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Salary Month *'}</label>
                 <input
                   type="text"
                   required
@@ -200,7 +200,7 @@ export const EmployeesView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'টাকার পরিমাণ *' : 'Amount *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Amount *'}</label>
                 <input
                   type="number"
                   required
@@ -212,23 +212,23 @@ export const EmployeesView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'যে অ্যাকাউন্ট থেকে দেওয়া হবে' : 'Deduct From'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Deduct From'}</label>
                 <select
-                  aria-label={isBn ? 'যে অ্যাকাউন্ট থেকে দেওয়া হবে' : 'Deduct From Account'}
+                  aria-label={'Deduct From Account'}
                   value={payAccountId}
                   onChange={(e) => setPayAccountId(e.target.value)}
                   className="w-full p-2 border border-slate-200 rounded-lg bg-white"
                 >
                   {accounts.map(a => (
                     <option key={a.id} value={a.id}>
-                      {a.name} (ব্যালেন্স: ৳{a.balance})
+                      {a.name} (Balance: ৳{a.balance})
                     </option>
                   ))}
                 </select>
               </div>
 
               <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded border">
-                বেতন প্রদানের সাথে সাথে তা 'স্টাফ বেতন' খরচের খাতে যুক্ত হবে এবং নির্বাচিত অ্যাকাউন্ট ব্যালেন্স থেকে কর্তন হবে।
+                Salary payment will be recorded under 'Staff Salary' and deducted from the selected account.
               </p>
             </div>
 
@@ -238,13 +238,13 @@ export const EmployeesView: React.FC = () => {
                 onClick={() => setPayingEmployee(null)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
               >
-                {isBn ? 'বেতন সম্পন্ন করুন' : 'Confirm Payment'}
+                {'Confirm Payment'}
               </button>
             </div>
           </form>
@@ -260,7 +260,7 @@ export const EmployeesView: React.FC = () => {
           >
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900">
-                {isBn ? 'নতুন কর্মচারী নিবন্ধন' : 'Register New Employee'}
+                {'Register New Employee'}
               </h3>
               <button
                 type="button"
@@ -273,19 +273,19 @@ export const EmployeesView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'নাম *' : 'Name *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Name *'}</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. তানভীর হাসান"
+                  placeholder="e.g. Tanvir Hasan"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'মোবাইল নম্বর *' : 'Mobile *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Mobile *'}</label>
                 <input
                   type="text"
                   required
@@ -298,35 +298,35 @@ export const EmployeesView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'পদবি (Position)' : 'Position'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Position'}</label>
                   <input
                     type="text"
                     value={position}
                     onChange={(e) => setPosition(e.target.value)}
-                    placeholder="e.g. সেলসম্যান"
+                    placeholder="e.g. Salesman"
                     className="w-full p-2 border border-slate-200 rounded-lg"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'সিস্টেম রোল' : 'Role'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Role'}</label>
                   <select
-                    aria-label={isBn ? 'সিস্টেম রোল নির্বাচন' : 'Role'}
+                    aria-label={'Role'}
                     value={role}
                     onChange={(e) => setRole(e.target.value as any)}
                     className="w-full p-2 border border-slate-200 rounded-lg bg-white capitalize"
                   >
-                    <option value="salesman">Salesman (সেলসম্যান)</option>
-                    <option value="manager">Manager (ম্যানেজার)</option>
-                    <option value="storekeeper">Storekeeper (স্টোরকিপার)</option>
-                    <option value="accountant">Accountant (হিসাবরক্ষক)</option>
-                    <option value="admin">Admin (অ্যাডমিন)</option>
+                    <option value="salesman">Salesman</option>
+                    <option value="manager">Manager</option>
+                    <option value="storekeeper">Storekeeper</option>
+                    <option value="accountant">Accountant</option>
+                    <option value="admin">Admin</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'মাসিক বেতন (৳) *' : 'Monthly Salary *'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Monthly Salary *'}</label>
                   <input
                     type="number"
                     required
@@ -338,7 +338,7 @@ export const EmployeesView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'যোগদানের তারিখ' : 'Joining Date'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Joining Date'}</label>
                   <input
                     type="date"
                     value={joiningDate}
@@ -355,13 +355,13 @@ export const EmployeesView: React.FC = () => {
                 onClick={() => setIsAddModalOpen(false)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
               >
-                {isBn ? 'সংরক্ষণ করুন' : 'Save Employee'}
+                {'Save Employee'}
               </button>
             </div>
           </form>
@@ -379,7 +379,7 @@ export const EmployeesView: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-slate-900">
-                    {isBn ? 'Delete Employee? (কর্মচারী রেকর্ড মুছে ফেলবেন?)' : 'Delete Employee?'}
+                    {'Delete Employee?'}
                   </h3>
                   <span className="text-[11px] text-slate-500 font-mono">
                     {employeeToDelete.name} ({employeeToDelete.position})
@@ -397,21 +397,19 @@ export const EmployeesView: React.FC = () => {
 
             <div className="space-y-2 text-xs text-slate-700">
               <p className="font-medium text-slate-800">
-                {isBn
-                  ? 'আপনি কি নিশ্চিত এই কর্মচারী রেকর্ডটি মুছে ফেলতে চান? এই অ্যাকশনটি অডিট ট্রেইলে সংরক্ষিত হবে।'
-                  : 'Are you sure you want to delete this employee record? This action will be recorded in the audit logs.'}
+                {'Are you sure you want to delete this employee record? This action will be recorded in the audit logs.'}
               </p>
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-700 text-xs">
                 <div className="flex justify-between">
-                  <span>{isBn ? 'পদবি ও রোল' : 'Position & Role'}:</span>
+                  <span>{'Position & Role'}:</span>
                   <span className="font-semibold">{employeeToDelete.position} ({employeeToDelete.role})</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{isBn ? 'মোবাইল নম্বর' : 'Mobile'}:</span>
+                  <span>{'Mobile'}:</span>
                   <span className="font-mono">{employeeToDelete.mobile}</span>
                 </div>
                 <div className="flex justify-between text-slate-800">
-                  <span>{isBn ? 'মাসিক বেতন' : 'Salary'}:</span>
+                  <span>{'Salary'}:</span>
                   <span className="font-mono-num font-bold">{formatCurrency(employeeToDelete.salary, lang)}</span>
                 </div>
               </div>
@@ -424,7 +422,7 @@ export const EmployeesView: React.FC = () => {
                 onClick={() => setEmployeeToDelete(null)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
               >
-                {isBn ? 'Cancel (বাতিল)' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="button"
@@ -441,7 +439,7 @@ export const EmployeesView: React.FC = () => {
                 className="px-4 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>{isDeletingEmployee ? (isBn ? 'মুছে ফেলা হচ্ছে...' : 'Deleting...') : (isBn ? 'Delete Employee (মুছে ফেলুন)' : 'Delete Employee')}</span>
+                <span>{isDeletingEmployee ? ('Deleting...') : ('Delete Employee')}</span>
               </button>
             </div>
           </div>

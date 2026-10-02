@@ -21,7 +21,7 @@ import {
 
 export const POSView: React.FC = () => {
   const { products, categories: appCategories, customers, addCustomer, recordSale, settings, activeBranchId, currentUserRole } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   // Active products only (excluding soft-deleted)
@@ -128,9 +128,7 @@ export const POSView: React.FC = () => {
     }
 
     alert(
-      isBn
-        ? `বারকোড বা SKU '${query}' দিয়ে কোনো সক্রিয় পণ্য পাওয়া যায়নি!`
-        : `No active product found with barcode or SKU '${query}'`
+      `No active product found with barcode or SKU '${query}'`
     );
   };
 
@@ -138,7 +136,7 @@ export const POSView: React.FC = () => {
   const addToCart = (product: Product, variant?: ProductVariant) => {
     const availableStock = variant ? variant.stock : product.currentStock;
     if (availableStock <= 0) {
-      alert(isBn ? 'এই পণ্যটি বর্তমানে স্টক আউট!' : 'This product is currently out of stock!');
+      alert('This product is currently out of stock!');
       return;
     }
 
@@ -150,7 +148,7 @@ export const POSView: React.FC = () => {
       if (existingIndex > -1) {
         const item = prev[existingIndex];
         if (item.quantity >= availableStock) {
-          alert(isBn ? `স্টকে সর্বোচ্চ ${availableStock} টি রয়েছে!` : `Only ${availableStock} available in stock!`);
+          alert(`Only ${availableStock} available in stock!`);
           return prev;
         }
         const updated = [...prev];
@@ -199,7 +197,7 @@ export const POSView: React.FC = () => {
         : (prod?.currentStock || 0);
 
       if (newQty > maxStock) {
-        alert(isBn ? `স্টকে মাত্র ${maxStock} টি পণ্য আছে!` : `Only ${maxStock} items available in stock!`);
+        alert(`Only ${maxStock} items available in stock!`);
         return prev;
       }
 
@@ -220,7 +218,7 @@ export const POSView: React.FC = () => {
   // Clear Cart
   const clearCart = () => {
     if (cart.length === 0) return;
-    if (confirm(isBn ? 'আপনি কি কার্ট খালি করতে চান?' : 'Clear shopping cart?')) {
+    if (confirm('Clear shopping cart?')) {
       setCart([]);
       setOrderDiscount(0);
       setTenderedAmount('');
@@ -263,12 +261,12 @@ export const POSView: React.FC = () => {
   const handleCompleteSale = () => {
     if (isSubmittingSale) return;
     if (cart.length === 0) {
-      alert(isBn ? 'কার্টে কোনো পণ্য নেই!' : 'Cart is empty!');
+      alert('Cart is empty!');
       return;
     }
 
     if (dueAmount > 0 && !selectedCustomerId) {
-      alert(isBn ? 'বাকি বিক্রির জন্য কাস্টমার নির্বাচন করা আবশ্যক!' : 'Customer selection required for due/credit sales!');
+      alert('Customer selection required for due/credit sales!');
       return;
     }
 
@@ -285,10 +283,10 @@ export const POSView: React.FC = () => {
         const nagadAmt = Number(mixedNagad) || 0;
         const bankAmt = Number(mixedBank) || 0;
 
-        if (cashAmt > 0) payments.push({ method: 'cash', amount: cashAmt, accountId: 'acc-cash', accountName: 'ক্যাশ ড্রয়ার' });
-        if (bkashAmt > 0) payments.push({ method: 'bkash', amount: bkashAmt, accountId: 'acc-bkash', accountName: 'বিকাশ মার্চেন্ট' });
-        if (nagadAmt > 0) payments.push({ method: 'nagad', amount: nagadAmt, accountId: 'acc-nagad', accountName: 'নগদ একাউন্ট' });
-        if (bankAmt > 0) payments.push({ method: 'bank', amount: bankAmt, accountId: 'acc-islami', accountName: 'ব্যাংক একাউন্ট' });
+        if (cashAmt > 0) payments.push({ method: 'cash', amount: cashAmt, accountId: 'acc-cash', accountName: 'Cash in Hand' });
+        if (bkashAmt > 0) payments.push({ method: 'bkash', amount: bkashAmt, accountId: 'acc-bkash', accountName: 'bKash Merchant' });
+        if (nagadAmt > 0) payments.push({ method: 'nagad', amount: nagadAmt, accountId: 'acc-nagad', accountName: 'Nagad Account' });
+        if (bankAmt > 0) payments.push({ method: 'bank', amount: bankAmt, accountId: 'acc-islami', accountName: 'Bank Account' });
       } else if (paymentMethod !== 'due') {
         payments.push({
           method: paymentMethod,
@@ -298,7 +296,7 @@ export const POSView: React.FC = () => {
 
       const saleRecord = recordSale({
         customerId: selectedCustomer?.id,
-        customerName: selectedCustomer ? selectedCustomer.name : (isBn ? 'ওয়াক-ইন কাস্টমার' : 'Walk-in Customer'),
+        customerName: selectedCustomer ? selectedCustomer.name : ('Walk-in Customer'),
         customerMobile: selectedCustomer?.mobile || '',
         items: cart,
         subtotal,
@@ -365,7 +363,7 @@ export const POSView: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={isBn ? 'নাম, SKU বা ব্র্যান্ড দিয়ে খুঁজুন...' : 'Search by name, SKU or brand...'}
+                placeholder={'Search by name, SKU or brand...'}
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
@@ -378,14 +376,14 @@ export const POSView: React.FC = () => {
                 type="text"
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
-                placeholder={isBn ? 'বারকোড স্ক্যান বা এন্টার করুন...' : 'Scan / enter barcode...'}
+                placeholder={'Scan / enter barcode...'}
                 className="w-full pl-9 pr-14 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
               />
               <button
                 type="submit"
                 className="absolute right-1 top-1 bottom-1 px-2.5 bg-slate-800 text-white text-[10px] font-semibold rounded-md hover:bg-slate-900 transition-colors"
               >
-                {isBn ? 'স্ক্যান' : 'Enter'}
+                {'Enter'}
               </button>
             </form>
           </div>
@@ -400,7 +398,7 @@ export const POSView: React.FC = () => {
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
               }`}
             >
-              {isBn ? 'সব পণ্য' : 'All Items'}
+              {'All Items'}
             </button>
             {allCategories.map(cat => (
               <button
@@ -448,7 +446,7 @@ export const POSView: React.FC = () => {
                     </span>
                     {product.hasVariants && (
                       <span className="text-[9px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded-sm">
-                        {isBn ? 'ভ্যারিয়েন্ট' : 'Variants'}
+                        {'Variants'}
                       </span>
                     )}
                   </div>
@@ -474,8 +472,8 @@ export const POSView: React.FC = () => {
                     }`}
                   >
                     {isOutOfStock
-                      ? (isBn ? 'স্টক শেষ' : 'Out')
-                      : `${isBn ? 'স্টক:' : 'Stock:'} ${toBnNumber(product.currentStock)}`}
+                      ? ('Out')
+                      : `${'Stock:'} ${toBnNumber(product.currentStock)}`}
                   </span>
                 </div>
               </div>
@@ -484,7 +482,7 @@ export const POSView: React.FC = () => {
 
           {filteredProducts.length === 0 && (
             <div className="col-span-full py-12 text-center text-slate-400 text-xs">
-              {isBn ? 'কোনো পণ্য পাওয়া যায়নি।' : 'No products match your search.'}
+              {'No products match your search.'}
             </div>
           )}
         </div>
@@ -498,7 +496,7 @@ export const POSView: React.FC = () => {
             <div className="flex items-center gap-2">
               <ShoppingCart className="w-4 h-4 text-emerald-600" />
               <h3 className="text-sm font-bold text-slate-900">
-                {isBn ? 'বিক্রয় কার্ট' : 'Active Cart'} ({toBnNumber(cart.length)})
+                {'Active Cart'} ({toBnNumber(cart.length)})
               </h3>
             </div>
             {cart.length > 0 && (
@@ -506,7 +504,7 @@ export const POSView: React.FC = () => {
                 onClick={clearCart}
                 className="text-[11px] font-medium text-rose-600 hover:text-rose-700 transition-colors"
               >
-                {isBn ? 'খালি করুন' : 'Clear'}
+                {'Clear'}
               </button>
             )}
           </div>
@@ -515,15 +513,15 @@ export const POSView: React.FC = () => {
           <div className="flex items-center gap-1.5">
             <div className="flex-1 relative">
               <select
-                aria-label={isBn ? 'কাস্টমার নির্বাচন করুন' : 'Select Customer'}
+                aria-label={'Select Customer'}
                 value={selectedCustomerId}
                 onChange={(e) => setSelectedCustomerId(e.target.value)}
                 className="w-full text-xs py-1.5 px-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium text-slate-800"
               >
-                <option value="">{isBn ? 'ওয়াক-ইন কাস্টমার (নগদ বিক্রি)' : 'Walk-in Customer (Cash)'}</option>
+                <option value="">{'Walk-in Customer (Cash)'}</option>
                 {customers.map(c => (
                   <option key={c.id} value={c.id}>
-                    {c.name} {c.currentDue > 0 ? `(বাকি: ৳${c.currentDue})` : ''}
+                    {c.name} {c.currentDue > 0 ? `(Due: ৳${c.currentDue})` : ''}
                   </option>
                 ))}
               </select>
@@ -531,7 +529,7 @@ export const POSView: React.FC = () => {
             <button
               onClick={() => setShowAddCustomerModal(true)}
               className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 transition-colors"
-              title={isBn ? 'নতুন কাস্টমার যোগ করুন' : 'Add new customer'}
+              title={'Add new customer'}
             >
               <UserPlus className="w-4 h-4" />
             </button>
@@ -540,7 +538,7 @@ export const POSView: React.FC = () => {
           {/* Customer Due Alert if customer has past due */}
           {selectedCustomer && selectedCustomer.currentDue > 0 && (
             <div className="text-[11px] bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1 text-amber-800 flex items-center justify-between">
-              <span>{isBn ? 'পূর্বের বকেয়া:' : 'Previous Due:'}</span>
+              <span>{'Previous Due:'}</span>
               <span className="font-bold font-mono-num">{formatCurrency(selectedCustomer.currentDue, lang)}</span>
             </div>
           )}
@@ -563,7 +561,7 @@ export const POSView: React.FC = () => {
                   )}
                   <span>@{formatCurrency(item.unitPrice, lang)}</span>
                   {item.discount > 0 && (
-                    <span className="text-emerald-600">ছাড়: -৳{item.discount}</span>
+                    <span className="text-emerald-600">Discount: -৳{item.discount}</span>
                   )}
                 </div>
               </div>
@@ -605,7 +603,7 @@ export const POSView: React.FC = () => {
           {cart.length === 0 && (
             <div className="py-16 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-2">
               <ShoppingCart className="w-8 h-8 text-slate-300" />
-              <span>{isBn ? 'কার্ট খালি! পণ্য নির্বাচন করুন।' : 'Cart is empty. Select products.'}</span>
+              <span>{'Cart is empty. Select products.'}</span>
             </div>
           )}
         </div>
@@ -615,12 +613,12 @@ export const POSView: React.FC = () => {
           {/* Subtotal, Discount & Tax */}
           <div className="space-y-1 text-slate-600 pb-2 border-b border-slate-200">
             <div className="flex justify-between">
-              <span>{isBn ? 'সাবটোটাল' : 'Subtotal'}:</span>
+              <span>{'Subtotal'}:</span>
               <span className="font-mono-num font-semibold text-slate-800">{formatCurrency(subtotal, lang)}</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span>{isBn ? 'অর্ডার ছাড় (৳)' : 'Discount (৳)'}:</span>
+              <span>{'Discount (৳)'}:</span>
               <input
                 type="number"
                 min="0"
@@ -633,13 +631,13 @@ export const POSView: React.FC = () => {
 
             {vatTaxRate > 0 && (
               <div className="flex justify-between text-slate-600">
-                <span>{isBn ? `ভ্যাট/ট্যাক্স (${toBnNumber(vatTaxRate)}%)` : `VAT/Tax (${vatTaxRate}%)`}:</span>
+                <span>{`VAT/Tax (${vatTaxRate}%)`}:</span>
                 <span className="font-mono-num">+{formatCurrency(vatTaxAmount, lang)}</span>
               </div>
             )}
 
             <div className="flex justify-between text-sm font-bold text-slate-900 pt-1 border-t border-slate-200">
-              <span>{isBn ? 'সর্বমোট বিল' : 'Grand Total'}:</span>
+              <span>{'Grand Total'}:</span>
               <span className="font-mono-num text-emerald-700 text-base">{formatCurrency(grandTotal, lang)}</span>
             </div>
           </div>
@@ -647,7 +645,7 @@ export const POSView: React.FC = () => {
           {/* Payment Method Selector */}
           <div>
             <span className="text-[11px] font-semibold text-slate-700 block mb-1">
-              {isBn ? 'পেমেন্ট মাধ্যম' : 'Payment Method'}
+              {'Payment Method'}
             </span>
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-1">
               {(['cash', 'bkash', 'nagad', 'bank', 'due', 'mixed'] as PaymentMethod[]).map(method => (
@@ -661,9 +659,9 @@ export const POSView: React.FC = () => {
                   }`}
                 >
                   {method === 'due'
-                    ? (isBn ? 'বাকি' : 'Due')
+                    ? ('Due')
                     : method === 'mixed'
-                    ? (isBn ? 'মিক্সড' : 'Mixed')
+                    ? ('Mixed')
                     : method}
                 </button>
               ))}
@@ -675,12 +673,12 @@ export const POSView: React.FC = () => {
             /* Mixed Split Payment Inputs */
             <div className="bg-emerald-50/70 border border-emerald-200 rounded-lg p-2.5 space-y-2 text-xs">
               <span className="text-[11px] font-bold text-emerald-900 block">
-                {isBn ? 'স্প্লিট / মাল্টি-একাউন্ট পেমেন্ট হিসাব:' : 'Split / Mixed Payment Breakdown:'}
+                {'Split / Mixed Payment Breakdown:'}
               </span>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] text-slate-600 font-medium block">
-                    {isBn ? 'নগদ (Cash ৳)' : 'Cash (৳)'}
+                    {'Cash (৳)'}
                   </label>
                   <input
                     type="number"
@@ -693,7 +691,7 @@ export const POSView: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-600 font-medium block">
-                    {isBn ? 'বিকাশ (bKash ৳)' : 'bKash (৳)'}
+                    {'bKash (৳)'}
                   </label>
                   <input
                     type="number"
@@ -706,7 +704,7 @@ export const POSView: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-600 font-medium block">
-                    {isBn ? 'নগদ ওয়ালেট (Nagad ৳)' : 'Nagad (৳)'}
+                    {'Nagad (৳)'}
                   </label>
                   <input
                     type="number"
@@ -719,7 +717,7 @@ export const POSView: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-600 font-medium block">
-                    {isBn ? 'ব্যাংক / কার্ড (Bank ৳)' : 'Bank / Card (৳)'}
+                    {'Bank / Card (৳)'}
                   </label>
                   <input
                     type="number"
@@ -733,7 +731,7 @@ export const POSView: React.FC = () => {
               </div>
 
               <div className="flex justify-between font-bold pt-1 border-t border-emerald-200 text-xs">
-                <span>{isBn ? 'মোট প্রাপ্ত:' : 'Total Received:'}</span>
+                <span>{'Total Received:'}</span>
                 <span className="font-mono-num text-emerald-800">{formatCurrency(mixedTotal, lang)}</span>
               </div>
             </div>
@@ -742,7 +740,7 @@ export const POSView: React.FC = () => {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-medium text-slate-700">
-                  {isBn ? 'প্রাপ্ত টাকা (Tendered)' : 'Tendered'}:
+                  {'Tendered'}:
                 </span>
                 <input
                   type="number"
@@ -772,13 +770,13 @@ export const POSView: React.FC = () => {
           {/* Change & Due Display */}
           {changeReturn > 0 && (
             <div className="flex justify-between text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded">
-              <span>{isBn ? 'ফেরত দিন (Change Return):' : 'Change Return:'}</span>
+              <span>{'Change Return:'}</span>
               <span className="font-mono-num">{formatCurrency(changeReturn, lang)}</span>
             </div>
           )}
           {dueAmount > 0 && (
             <div className="flex justify-between text-xs font-bold text-rose-700 bg-rose-50 px-2 py-1 rounded">
-              <span>{isBn ? 'বকেয়া থাকবে (Pending Due):' : 'Pending Due:'}</span>
+              <span>{'Pending Due:'}</span>
               <span className="font-mono-num">{formatCurrency(dueAmount, lang)}</span>
             </div>
           )}
@@ -796,8 +794,8 @@ export const POSView: React.FC = () => {
             <CreditCard className="w-4 h-4" />
             <span>
               {isSubmittingSale
-                ? (isBn ? 'বিক্রি প্রসেস হচ্ছে...' : 'Processing...')
-                : isBn ? 'বিক্রি সম্পন্ন ও ইনভয়েস প্রিন্ট' : 'Complete Sale & Print'}
+                ? ('Processing...')
+                : 'Complete Sale & Print'}
               {grandTotal > 0 && ` (${formatCurrency(grandTotal, lang)})`}
             </span>
           </button>
@@ -811,7 +809,7 @@ export const POSView: React.FC = () => {
             <div className="flex items-center justify-between border-b pb-2">
               <div>
                 <h3 className="font-bold text-sm text-slate-900">{variantProduct.name}</h3>
-                <span className="text-xs text-slate-500">{isBn ? 'সাইজ ও রঙ নির্বাচন করুন' : 'Select Variant'}</span>
+                <span className="text-xs text-slate-500">{'Select Variant'}</span>
               </div>
               <button
                 type="button"
@@ -848,7 +846,7 @@ export const POSView: React.FC = () => {
                         {formatCurrency(variantProduct.salePrice + (v.additionalPrice || 0), lang)}
                       </span>
                       <span className={`text-[10px] ${isOut ? 'text-rose-500' : 'text-slate-500'}`}>
-                        {isOut ? (isBn ? 'স্টক শেষ' : 'Out') : `${isBn ? 'স্টক:' : 'Stock:'} ${toBnNumber(v.stock)}`}
+                        {isOut ? ('Out') : `${'Stock:'} ${toBnNumber(v.stock)}`}
                       </span>
                     </div>
                   </button>
@@ -868,7 +866,7 @@ export const POSView: React.FC = () => {
           >
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900">
-                {isBn ? 'দ্রুত কাস্টমার যোগ' : 'Quick Add Customer'}
+                {'Quick Add Customer'}
               </h3>
               <button
                 type="button"
@@ -881,19 +879,19 @@ export const POSView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'কাস্টমারের নাম *' : 'Name *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Name *'}</label>
                 <input
                   type="text"
                   required
                   value={newCustName}
                   onChange={(e) => setNewCustName(e.target.value)}
-                  placeholder="e.g. মো: রাজিব হাসান"
+                  placeholder="e.g. John Doe / Customer Name"
                   className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'মোবাইল নম্বর' : 'Mobile'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Mobile'}</label>
                 <input
                   type="text"
                   value={newCustMobile}
@@ -910,13 +908,13 @@ export const POSView: React.FC = () => {
                 onClick={() => setShowAddCustomerModal(false)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
               >
-                {isBn ? 'সংরক্ষণ করুন' : 'Save'}
+                {'Save'}
               </button>
             </div>
           </form>

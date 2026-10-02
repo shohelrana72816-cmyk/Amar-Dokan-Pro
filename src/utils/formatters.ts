@@ -1,4 +1,4 @@
-export const formatCurrency = (amount: number, lang: 'bn' | 'en' = 'bn'): string => {
+export const formatCurrency = (amount: number, lang: 'bn' | 'en' = 'en'): string => {
   const rounded = Math.round(amount);
   const formattedEn = new Intl.NumberFormat('en-BD', {
     maximumFractionDigits: 0,
@@ -26,7 +26,10 @@ export const formatCurrency = (amount: number, lang: 'bn' | 'en' = 'bn'): string
   return `৳${formattedBn}`;
 };
 
-export const toBnNumber = (num: number | string): string => {
+export const toBnNumber = (num: number | string, lang: 'bn' | 'en' = 'en'): string => {
+  if (lang === 'en') {
+    return String(num);
+  }
   const bnDigits: Record<string, string> = {
     '0': '০',
     '1': '১',
@@ -42,7 +45,7 @@ export const toBnNumber = (num: number | string): string => {
   return String(num).replace(/\d/g, (d) => bnDigits[d] || d);
 };
 
-export const formatDate = (isoString: string, lang: 'bn' | 'en' = 'bn'): string => {
+export const formatDate = (isoString: string, lang: 'bn' | 'en' = 'en'): string => {
   try {
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return isoString;

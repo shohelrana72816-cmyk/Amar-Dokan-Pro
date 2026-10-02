@@ -17,7 +17,7 @@ import {
 
 export const SuppliersView: React.FC = () => {
   const { suppliers, supplierTransactions, addSupplier, updateSupplier, deleteSupplier, isAdmin, paySupplierDue, accounts, settings } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -98,7 +98,7 @@ export const SuppliersView: React.FC = () => {
     setPayAmount(s.currentDue);
     setPayMethod('cash');
     setPayAccountId(accounts[0]?.id || '');
-    setPayNote(isBn ? 'মহাজন পাওনা পরিশোধ' : 'Supplier due payment');
+    setPayNote('Supplier due payment');
   };
 
   const handleSubmitPay = (e: React.FormEvent) => {
@@ -127,32 +127,32 @@ export const SuppliersView: React.FC = () => {
       {/* Top Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'মোট সরবরাহকারী / মহাজন' : 'Total Suppliers'}</span>
+          <span className="text-xs text-slate-500 block">{'Total Suppliers'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-slate-900 mt-1 block">
             {toBnNumber(suppliers.length)}
           </span>
           <span className="text-[11px] text-slate-500 mt-0.5 block">
-            {isBn ? 'রেজিস্টার্ড ডিস্ট্রিবিউটর ও পাইকার' : 'Registered vendors & distributors'}
+            {'Registered vendors & distributors'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-rose-200 bg-rose-50/40 p-4 shadow-xs">
           <span className="text-xs text-rose-800 font-semibold block">
-            {isBn ? 'মোট মহাজন পাওনা (Supplier Due)' : 'Total Payable Due'}
+            {'Total Payable Due'}
           </span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-rose-900 mt-1 block">
             {formatCurrency(totalSupplierDue, lang)}
           </span>
           <span className="text-[11px] text-rose-700 mt-0.5 block">
-            {isBn ? 'দোকানের পক্ষ থেকে পরিশোধযোগ্য টাকা' : 'Outstanding payable liability'}
+            {'Outstanding payable liability'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 block">{isBn ? 'নতুন মহাজন যোগ' : 'Add Supplier'}</span>
+            <span className="text-xs text-slate-500 block">{'Add Supplier'}</span>
             <span className="text-xs text-slate-700 mt-1 block font-medium">
-              {isBn ? 'কোম্পানি ও মোবাইল নম্বর সংরক্ষণ' : 'Save vendor details'}
+              {'Save vendor details'}
             </span>
           </div>
           <button
@@ -160,7 +160,7 @@ export const SuppliersView: React.FC = () => {
             className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>{isBn ? 'যোগ করুন' : 'Add'}</span>
+            <span>{'Add'}</span>
           </button>
         </div>
       </div>
@@ -173,7 +173,7 @@ export const SuppliersView: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isBn ? 'কোম্পানির নাম, মহাজন বা ফোন নম্বর দিয়ে খুঁজুন...' : 'Search company, supplier name, phone...'}
+            placeholder={'Search company, supplier name, phone...'}
             className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-slate-50/50"
           />
         </div>
@@ -185,13 +185,13 @@ export const SuppliersView: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
               <tr>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'কোম্পানি ও মহাজন' : 'Company & Supplier'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'মোবাইল' : 'Mobile'}</th>
-                <th className="px-4 py-3 font-semibold">{isBn ? 'ঠিকানা' : 'Address'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'মোট ক্রয়' : 'Total Purchase'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'মোট পরিশোধ' : 'Total Paid'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'বর্তমান বকেয়া' : 'Current Due'}</th>
-                <th className="px-4 py-3 font-semibold text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>
+                <th className="px-4 py-3 font-semibold">{'Company & Supplier'}</th>
+                <th className="px-4 py-3 font-semibold">{'Mobile'}</th>
+                <th className="px-4 py-3 font-semibold">{'Address'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Total Purchase'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Total Paid'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Current Due'}</th>
+                <th className="px-4 py-3 font-semibold text-right">{'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -215,7 +215,7 @@ export const SuppliersView: React.FC = () => {
                   </td>
                   <td className="px-4 py-3 text-right font-mono-num font-bold">
                     <span className={supplier.currentDue > 0 ? 'text-rose-700 text-sm' : 'text-slate-400'}>
-                      {supplier.currentDue > 0 ? formatCurrency(supplier.currentDue, lang) : '০'}
+                      {supplier.currentDue > 0 ? formatCurrency(supplier.currentDue, lang) : '0'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -224,17 +224,17 @@ export const SuppliersView: React.FC = () => {
                         <button
                           onClick={() => handleOpenPay(supplier)}
                           className="flex items-center gap-1 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded font-semibold transition-colors"
-                          title={isBn ? 'বকেয়া পরিশোধ করুন' : 'Pay Due'}
+                          title={'Pay Due'}
                         >
                           <CreditCard className="w-3.5 h-3.5 text-rose-700" />
-                          <span>{isBn ? 'পরিশোধ' : 'Pay Due'}</span>
+                          <span>{'Pay Due'}</span>
                         </button>
                       )}
                       <button
                         onClick={() => handleOpenEdit(supplier)}
                         className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium transition-colors"
                       >
-                        {isBn ? 'এডিট' : 'Edit'}
+                        {'Edit'}
                       </button>
                       {isAdmin && (
                         <button
@@ -243,7 +243,7 @@ export const SuppliersView: React.FC = () => {
                             setDeleteSupplierError(null);
                           }}
                           className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded transition-colors"
-                          title={isBn ? 'সাপ্লায়ার মুছে ফেলুন (অ্যাডমিন অনলি)' : 'Delete Supplier (Admin Only)'}
+                          title={'Delete Supplier (Admin Only)'}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -256,7 +256,7 @@ export const SuppliersView: React.FC = () => {
               {filteredSuppliers.length === 0 && (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
-                    {isBn ? 'কোনো সাপ্লায়ার পাওয়া যায়নি।' : 'No suppliers found.'}
+                    {'No suppliers found.'}
                   </td>
                 </tr>
               )}
@@ -276,10 +276,10 @@ export const SuppliersView: React.FC = () => {
               <div>
                 <h3 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
                   <CreditCard className="w-4 h-4 text-emerald-600" />
-                  <span>{isBn ? 'সাপ্লায়ার পাওনা পরিশোধ' : 'Pay Supplier Due'}</span>
+                  <span>{'Pay Supplier Due'}</span>
                 </h3>
                 <span className="text-[11px] text-slate-500">
-                  {payingSupplier.company} (বকেয়া: ৳{payingSupplier.currentDue})
+                  {payingSupplier.company} (Due: ৳{payingSupplier.currentDue})
                 </span>
               </div>
               <button
@@ -293,7 +293,7 @@ export const SuppliersView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'পরিশোধিত টাকার পরিমাণ *' : 'Payment Amount *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Payment Amount *'}</label>
                 <input
                   type="number"
                   required
@@ -308,29 +308,29 @@ export const SuppliersView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'পেমেন্ট মাধ্যম' : 'Method'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Method'}</label>
                   <select
-                    aria-label={isBn ? 'পেমেন্ট মাধ্যম' : 'Method'}
+                    aria-label={'Method'}
                     value={payMethod}
                     onChange={(e) => setPayMethod(e.target.value as any)}
                     className="w-full p-2 border border-slate-200 rounded-lg bg-white capitalize"
                   >
-                    <option value="cash">Cash (ক্যাশ)</option>
-                    <option value="bank">Bank (ব্যাংক)</option>
-                    <option value="bkash">bKash (বিকাশ)</option>
+                    <option value="cash">Cash</option>
+                    <option value="bank">Bank</option>
+                    <option value="bkash">bKash</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'যে অ্যাকাউন্ট থেকে কর্তন হবে' : 'Deduct From'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Deduct From'}</label>
                   <select
-                    aria-label={isBn ? 'টাকা কর্তন হওয়ার অ্যাকাউন্ট' : 'Deduct From Account'}
+                    aria-label={'Deduct From Account'}
                     value={payAccountId}
                     onChange={(e) => setPayAccountId(e.target.value)}
                     className="w-full p-2 border border-slate-200 rounded-lg bg-white"
                   >
                     {accounts.map(a => (
                       <option key={a.id} value={a.id}>
-                        {a.name} (ব্যালেন্স: ৳{a.balance})
+                        {a.name} (Balance: ৳{a.balance})
                       </option>
                     ))}
                   </select>
@@ -338,12 +338,12 @@ export const SuppliersView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'নোট / চালান বিবরণ' : 'Note'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Note'}</label>
                 <input
                   type="text"
                   value={payNote}
                   onChange={(e) => setPayNote(e.target.value)}
-                  placeholder="পূর্বের বাকি পরিশোধ"
+                  placeholder="Payment for previous dues"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
@@ -355,13 +355,13 @@ export const SuppliersView: React.FC = () => {
                 onClick={() => setPayingSupplier(null)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-xs"
               >
-                {isBn ? 'পরিশোধ নিশ্চিত করুন' : 'Confirm Payment'}
+                {'Confirm Payment'}
               </button>
             </div>
           </form>
@@ -378,7 +378,7 @@ export const SuppliersView: React.FC = () => {
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                 <Building className="w-4 h-4 text-emerald-600" />
-                <span>{editingSupplier ? (isBn ? 'সাপ্লায়ার এডিট' : 'Edit Supplier') : (isBn ? 'নতুন সাপ্লায়ার নিবন্ধন' : 'Add Supplier')}</span>
+                <span>{editingSupplier ? ('Edit Supplier') : ('Add Supplier')}</span>
               </h3>
               <button
                 type="button"
@@ -391,31 +391,31 @@ export const SuppliersView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'কোম্পানি / প্রতিষ্ঠানের নাম *' : 'Company Name *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Company Name *'}</label>
                 <input
                   type="text"
                   required
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  placeholder="e.g. বেক্সিমকো টেক্সটাইল ডিস্ট্রিবিউটর"
+                  placeholder="e.g. Beximco Textile Distributors"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'প্রতিনিধি / মহাজনের নাম *' : 'Contact Person *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Contact Person *'}</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. মো: রফিকুল ইসলাম"
+                  placeholder="e.g. Md. Rafiqul Islam"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'মোবাইল নম্বর *' : 'Phone *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Phone *'}</label>
                 <input
                   type="text"
                   required
@@ -428,7 +428,7 @@ export const SuppliersView: React.FC = () => {
 
               {!editingSupplier && (
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'প্রারম্ভিক বকেয়া (যদি থাকে)' : 'Opening Due'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'Opening Due'}</label>
                   <input
                     type="number"
                     min="0"
@@ -441,12 +441,12 @@ export const SuppliersView: React.FC = () => {
               )}
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'ঠিকানা' : 'Address'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Address'}</label>
                 <input
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="শ্যামপুর, ঢাকা"
+                  placeholder="Shyampur, Dhaka"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
@@ -458,13 +458,13 @@ export const SuppliersView: React.FC = () => {
                 onClick={() => setIsModalOpen(false)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
               >
-                {isBn ? 'সংরক্ষণ করুন' : 'Save Supplier'}
+                {'Save Supplier'}
               </button>
             </div>
           </form>
@@ -482,7 +482,7 @@ export const SuppliersView: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-slate-900">
-                    {isBn ? 'Delete Supplier? (সাপ্লায়ার মুছে ফেলবেন?)' : 'Delete Supplier?'}
+                    {'Delete Supplier?'}
                   </h3>
                   <span className="text-[11px] text-slate-500 font-mono">
                     {supplierToDelete.name} ({supplierToDelete.company})
@@ -500,37 +500,31 @@ export const SuppliersView: React.FC = () => {
 
             <div className="space-y-2 text-xs text-slate-700">
               <p className="font-medium text-slate-800">
-                {isBn
-                  ? 'আপনি কি নিশ্চিত এই সাপ্লায়ার রেকর্ডটি স্থায়ীভাবে মুছে ফেলতে চান?'
-                  : 'Are you sure you want to permanently delete this supplier record?'}
+                {'Are you sure you want to permanently delete this supplier record?'}
               </p>
 
               {supplierToDelete.currentDue > 0 ? (
                 <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl space-y-1 text-rose-900 text-xs">
                   <div className="flex items-center gap-1.5 font-bold text-rose-800">
                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                    <span>{isBn ? 'সতর্কতা: সাপ্লায়ারের বকেয়া পাওনা বিদ্যমান!' : 'Warning: Outstanding Due Balance!'}</span>
+                    <span>{'Warning: Outstanding Due Balance!'}</span>
                   </div>
                   <p>
-                    {isBn
-                      ? `এই সাপ্লায়ারের নিকট ৳${supplierToDelete.currentDue} বকেয়া রয়েছে। বকেয়া পরিশোধ না করে রেকর্ড মুছে ফেলা যাবে না।`
-                      : `This supplier has an outstanding due balance of ৳${supplierToDelete.currentDue}. Please settle the due balance before deletion.`}
+                    {`This supplier has an outstanding due balance of ৳${supplierToDelete.currentDue}. Please settle the due balance before deletion.`}
                   </p>
                 </div>
               ) : (
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-700 text-xs">
                   <div className="flex justify-between">
-                    <span>{isBn ? 'মোট ক্রয়' : 'Total Purchases'}:</span>
+                    <span>{'Total Purchases'}:</span>
                     <span className="font-mono-num font-bold">{formatCurrency(supplierToDelete.totalPurchase, lang)}</span>
                   </div>
                   <div className="flex justify-between text-emerald-700">
-                    <span>{isBn ? 'মোট পরিশোধ' : 'Total Paid'}:</span>
+                    <span>{'Total Paid'}:</span>
                     <span className="font-mono-num font-bold">{formatCurrency(supplierToDelete.totalPaid, lang)}</span>
                   </div>
                   <p className="pt-1 text-[11px] text-slate-500">
-                    {isBn
-                      ? 'অ্যাকশনটি অডিট লগে রেকর্ড করা হবে।'
-                      : 'This action will be recorded in the audit logs.'}
+                    {'This action will be recorded in the audit logs.'}
                   </p>
                 </div>
               )}
@@ -548,7 +542,7 @@ export const SuppliersView: React.FC = () => {
                 onClick={() => setSupplierToDelete(null)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
               >
-                {isBn ? 'Cancel (বাতিল)' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="button"
@@ -568,7 +562,7 @@ export const SuppliersView: React.FC = () => {
                 }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>{isBn ? 'Delete Supplier (মুছে ফেলুন)' : 'Delete Supplier'}</span>
+                <span>{'Delete Supplier'}</span>
               </button>
             </div>
           </div>

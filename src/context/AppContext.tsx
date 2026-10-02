@@ -134,7 +134,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [settings, setSettings] = useState<ShopSettings>(() => {
     try {
       const saved = localStorage.getItem(`${STORAGE_KEY}_SETTINGS`);
-      return saved ? JSON.parse(saved) : initialSettings;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { ...parsed, language: 'en' };
+      }
+      return initialSettings;
     } catch {
       return initialSettings;
     }
@@ -194,7 +198,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           amount: 888,
           balanceAfter: 3500,
           referenceId: 'INV-260924-1024',
-          note: 'বাকি সেল'
+          note: 'Credit sale invoice'
         }
       ];
     } catch {
@@ -224,7 +228,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           amount: 9300,
           balanceAfter: 18500,
           referenceId: 'BILL-BEX-9921',
-          note: 'বাকি ক্রয়'
+          note: 'Credit purchase bill'
         }
       ];
     } catch {
@@ -266,13 +270,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         {
           id: 'atx-init-1',
           accountId: 'acc-cash',
-          accountName: 'ক্যাশ ড্রয়ার (Cash in Hand)',
+          accountName: 'Cash in Hand',
           date: new Date(Date.now() - 24 * 3600000).toISOString(),
           type: 'sale_payment',
           amount: 1500,
           balanceAfter: 42300,
           referenceId: 'INV-INIT-1',
-          note: 'প্রারম্ভিক সেল পেমেন্ট',
+          note: 'Initial sales payment',
         }
       ];
     } catch {
@@ -1480,7 +1484,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       note: `${month} মাসের বেতন প্রদান`,
     });
 
-    addAuditLog('SALARY_DISBURSED', 'employee', employeeId, `বেতন প্রদান: ${emp.name}, মাস: ${month}, পরিমাণ: ৳${amount}`);
+    addAuditLog('SALARY_DISBURSED', 'employee', employeeId, `বেতন প্রদান: ${emp.name}, Month: ${month}, পরিমাণ: ৳${amount}`);
   };
 
   // Admin-only Delete Operations
@@ -1602,7 +1606,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             amount: sale.due,
             balanceAfter: 0,
             referenceId: sale.invoiceNumber,
-            note: `ইনভয়েস ${sale.invoiceNumber} ডিলিট: বকেয়া রিভার্স`,
+            note: `Invoice ${sale.invoiceNumber} deleted: due balance reversed`,
           };
           setCustomerTransactions(prev => [custTxn, ...prev]);
         }
@@ -1611,13 +1615,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // 4. Remove the sale
     setSales(prev => prev.filter(s => s.id !== saleId));
-    addAuditLog('INVOICE_DELETED', 'sale', sale.id, `ইনভয়েস ${sale.invoiceNumber} স্থায়ীভাবে মুছে ফেলা হয়েছে (স্টক ও ব্যালান্স রিভার্সড)`);
+    addAuditLog('INVOICE_DELETED', 'sale', sale.id, `Invoice ${sale.invoiceNumber} permanently deleted (stock & balance reversed)`);
     return true;
   };
 
   const deletePurchase = (purchaseId: string): boolean => {
     if (!isAdmin) {
-      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'purchase', purchaseId, `অননুমোদিত ডিলিট চেষ্টা: রোল (${currentUserRole}) ক্রয় চালান মুছে ফেলতে পারবে না`);
+      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'purchase', purchaseId, `Unauthorized delete attempt: role (${currentUserRole}) cannot delete purchase bill`);
       return false;
     }
 
@@ -1707,7 +1711,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               amount: purchase.paid,
               balanceAfter: newBal,
               referenceId: purchase.invoiceNumber,
-              note: `ক্রয় চালান ${purchase.invoiceNumber} ডিলিট: পরিশোধিত টাকা একাউন্টে ফেরত`,
+              note: `Purchase bill ${purchase.invoiceNumber} deleted: paid amount refunded to account`,
             };
             setAccountTransactions(txns => [accTxn, ...txns]);
             return { ...acc, balance: newBal };
@@ -1719,13 +1723,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // 4. Remove purchase
     setPurchases(prev => prev.filter(p => p.id !== purchaseId));
-    addAuditLog('PURCHASE_DELETED', 'purchase', purchaseId, `ক্রয় চালান ${purchase.invoiceNumber} অ্যাডমিন কর্তৃক মুছে ফেলা হয়েছে (স্টক ও ব্যালান্স সমন্বয় সম্পন্ন)`);
+    addAuditLog('PURCHASE_DELETED', 'purchase', purchaseId, `Purchase bill ${purchase.invoiceNumber} deleted by Admin (stock & balance reconciled)`);
     return true;
   };
 
   const deleteCustomer = (customerId: string): { success: boolean; message?: string } => {
     if (!isAdmin) {
-      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'customer', customerId, `অননুমোদিত ডিলিট চেষ্টা: রোল (${currentUserRole}) কাস্টমার মুছে ফেলতে পারবে না`);
+      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'customer', customerId, `Unauthorized delete attempt: role (${currentUserRole}) cannot delete customer`);
       return { success: false, message: 'Only Admin can delete customer records.' };
     }
 
@@ -1735,18 +1739,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (customer.currentDue > 0) {
       return {
         success: false,
-        message: `এই কাস্টমারের বকেয়া রয়েছে (৳${customer.currentDue})। ডিলিট করার পূর্বে বকেয়া আদায় বা সমন্বয় করতে হবে।`,
+        message: `Customer has outstanding due (৳${customer.currentDue}). Please clear or adjust balance before deletion.`,
       };
     }
 
     setCustomers(prev => prev.filter(c => c.id !== customerId));
-    addAuditLog('CUSTOMER_DELETED', 'customer', customerId, `কাস্টমার মুছে ফেলা হয়েছে: ${customer.name} (${customer.mobile})`);
+    addAuditLog('CUSTOMER_DELETED', 'customer', customerId, `Customer deleted: ${customer.name} (${customer.mobile})`);
     return { success: true };
   };
 
   const deleteSupplier = (supplierId: string): { success: boolean; message?: string } => {
     if (!isAdmin) {
-      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'supplier', supplierId, `অননুমোদিত ডিলিট চেষ্টা: রোল (${currentUserRole}) সাপ্লায়ার মুছে ফেলতে পারবে না`);
+      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'supplier', supplierId, `Unauthorized delete attempt: role (${currentUserRole}) cannot delete supplier`);
       return { success: false, message: 'Only Admin can delete supplier records.' };
     }
 
@@ -1756,18 +1760,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (supplier.currentDue > 0) {
       return {
         success: false,
-        message: `এই সাপ্লায়ারের বকেয়া রয়েছে (৳${supplier.currentDue})। ডিলিট করার পূর্বে বকেয়া পরিশোধ করতে হবে।`,
+        message: `Supplier has outstanding balance (৳${supplier.currentDue}). Please settle due before deletion.`,
       };
     }
 
     setSuppliers(prev => prev.filter(s => s.id !== supplierId));
-    addAuditLog('SUPPLIER_DELETED', 'supplier', supplierId, `সাপ্লায়ার মুছে ফেলা হয়েছে: ${supplier.name} (${supplier.company})`);
+    addAuditLog('SUPPLIER_DELETED', 'supplier', supplierId, `Supplier deleted: ${supplier.name} (${supplier.company})`);
     return { success: true };
   };
 
   const deleteExpense = (expenseId: string): boolean => {
     if (!isAdmin) {
-      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'expense', expenseId, `অননুমোদিত ডিলিট চেষ্টা: রোল (${currentUserRole}) খরচ রেকর্ড মুছে ফেলতে পারবে না`);
+      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'expense', expenseId, `Unauthorized delete attempt: role (${currentUserRole}) cannot delete expense`);
       return false;
     }
 
@@ -1790,7 +1794,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             amount: expense.amount,
             balanceAfter: newBal,
             referenceId: expense.id,
-            note: `খরচ রেকর্ড মুছে ফেলার কারণে একাউন্ট ব্যালান্স ফেরত (${expense.category})`,
+            note: `Expense deleted: balance restored to account (${expense.category})`,
           };
           setAccountTransactions(txns => [accTxn, ...txns]);
           return { ...acc, balance: newBal };
@@ -1800,13 +1804,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
 
     setExpenses(prev => prev.filter(e => e.id !== expenseId));
-    addAuditLog('EXPENSE_DELETED', 'expense', expenseId, `খরচ রেকর্ড মুছে ফেলা হয়েছে: ${expense.category}, পরিমাণ: ৳${expense.amount}`);
+    addAuditLog('EXPENSE_DELETED', 'expense', expenseId, `Expense record deleted: ${expense.category}, amount: ৳${expense.amount}`);
     return true;
   };
 
   const deleteEmployee = (employeeId: string): boolean => {
     if (!isAdmin) {
-      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'employee', employeeId, `অননুমোদিত ডিলিট চেষ্টা: রোল (${currentUserRole}) কর্মচারী রেকর্ড মুছে ফেলতে পারবে না`);
+      addAuditLog('UNAUTHORIZED_DELETE_ATTEMPT', 'employee', employeeId, `Unauthorized delete attempt: role (${currentUserRole}) cannot delete employee`);
       return false;
     }
 
@@ -1814,7 +1818,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!emp) return false;
 
     setEmployees(prev => prev.filter(e => e.id !== employeeId));
-    addAuditLog('EMPLOYEE_DELETED', 'employee', employeeId, `কর্মচারী রেকর্ড মুছে ফেলা হয়েছে: ${emp.name} (${emp.position})`);
+    addAuditLog('EMPLOYEE_DELETED', 'employee', employeeId, `Employee record deleted: ${emp.name} (${emp.position})`);
     return true;
   };
 
@@ -1862,7 +1866,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (parsed.stockMovements) setStockMovements(parsed.stockMovements);
       if (parsed.auditLogs) setAuditLogs(parsed.auditLogs);
 
-      addAuditLog('DATA_RESTORED', 'system', 'backup', 'সিস্টেম ব্যাকআপ রিস্টোর সম্পন্ন হয়েছে');
+      addAuditLog('DATA_RESTORED', 'system', 'backup', 'System backup restore completed successfully');
       return true;
     } catch (e) {
       console.error('Failed to restore data:', e);

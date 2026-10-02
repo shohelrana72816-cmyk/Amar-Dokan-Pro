@@ -15,7 +15,7 @@ import {
 
 export const SettingsView: React.FC = () => {
   const { settings, updateSettings, backupData, restoreData, resetToDemoData } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
 
   const [shopName, setShopName] = useState(settings.shopName);
   const [tagline, setTagline] = useState(settings.tagline);
@@ -64,9 +64,9 @@ export const SettingsView: React.FC = () => {
       if (content) {
         const success = restoreData(content);
         if (success) {
-          alert(isBn ? 'ব্যাকআপ সফলভাবে রিস্টোর হয়েছে!' : 'Backup restored successfully!');
+          alert('Backup restored successfully!');
         } else {
-          alert(isBn ? 'ব্যাকআপ ফাইলটি সঠিক নয়!' : 'Invalid backup JSON file!');
+          alert('Invalid backup JSON file!');
         }
       }
     };
@@ -80,17 +80,17 @@ export const SettingsView: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <Settings className="w-5 h-5 text-emerald-600" />
-            <span>{isBn ? 'দোকানের সেটিংস ও সিস্টেম কনফিগারেশন' : 'Shop Settings & System'}</span>
+            <span>{'Shop Settings & System'}</span>
           </h2>
           <p className="text-xs text-slate-600 mt-0.5">
-            {isBn ? 'ইনভয়েস, ভ্যাট, ব্যবসার ধরন ও ব্যাকআপ নিয়ন্ত্রণ করুন' : 'Configure business details, VAT, invoice type & backups'}
+            {'Configure business details, VAT, invoice type & backups'}
           </p>
         </div>
 
         {savedNotice && (
           <span className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
             <CheckCircle2 className="w-4 h-4" />
-            <span>{isBn ? 'সংরক্ষিত হয়েছে!' : 'Settings Saved!'}</span>
+            <span>{'Settings Saved!'}</span>
           </span>
         )}
       </div>
@@ -98,12 +98,12 @@ export const SettingsView: React.FC = () => {
       {/* Profile Form */}
       <form onSubmit={handleSaveSettings} className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4 text-xs">
         <h3 className="text-sm font-bold text-slate-900 pb-2 border-b">
-          {isBn ? '১. দোকানের প্রাথমিক তথ্য ও ইনভয়েস হেডার' : '1. Shop Profile & Invoice Header'}
+          {'1. Shop Profile & Invoice Header'}
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'দোকানের নাম *' : 'Shop Name *'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'Shop Name *'}</label>
             <input
               type="text"
               required
@@ -114,7 +114,7 @@ export const SettingsView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'ট্যাগলাইন' : 'Tagline'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'Tagline'}</label>
             <input
               type="text"
               value={tagline}
@@ -124,7 +124,7 @@ export const SettingsView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'মোবাইল নম্বর *' : 'Phone *'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'Phone *'}</label>
             <input
               type="text"
               required
@@ -135,7 +135,7 @@ export const SettingsView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'ইমেইল' : 'Email'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'Email'}</label>
             <input
               type="email"
               value={email}
@@ -145,7 +145,7 @@ export const SettingsView: React.FC = () => {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'দোকানের ঠিকানা *' : 'Address *'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'Address *'}</label>
             <input
               type="text"
               required
@@ -157,12 +157,12 @@ export const SettingsView: React.FC = () => {
         </div>
 
         <h3 className="text-sm font-bold text-slate-900 pt-3 pb-2 border-b">
-          {isBn ? '২. সেলস ও ইনভয়েস কনফিগারেশন' : '2. POS & Invoice Configuration'}
+          {'2. POS & Invoice Configuration'}
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'ভ্যাট/ট্যাক্স হার (%)' : 'VAT/Tax Rate (%)'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'VAT/Tax Rate (%)'}</label>
             <input
               type="number"
               min="0"
@@ -174,31 +174,31 @@ export const SettingsView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'ডিফল্ট প্রিন্টার ফরম্যাট' : 'Invoice Format'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'Invoice Format'}</label>
             <select
-              aria-label={isBn ? 'ইনভয়েস প্রিন্টার ফরম্যাট' : 'Invoice Format'}
+              aria-label={'Invoice Format'}
               value={invoiceFormat}
               onChange={(e) => setInvoiceFormat(e.target.value as any)}
               className="w-full p-2 border border-slate-200 rounded-lg bg-white"
             >
-              <option value="thermal">{isBn ? 'থার্মাল স্লিপ (80mm POS)' : 'Thermal Slip (80mm)'}</option>
-              <option value="a4">{isBn ? 'স্ট্যান্ডার্ড A4 ইনভয়েস' : 'A4 Full Invoice'}</option>
+              <option value="thermal">{'Thermal Slip (80mm)'}</option>
+              <option value="a4">{'A4 Full Invoice'}</option>
             </select>
           </div>
 
           <div>
-            <label className="block font-medium text-slate-700 mb-1">{isBn ? 'ব্যবসার মূল ক্যাটাগরি' : 'Business Category'}</label>
+            <label className="block font-medium text-slate-700 mb-1">{'Business Category'}</label>
             <select
-              aria-label={isBn ? 'ব্যবসার মূল ক্যাটাগরি' : 'Business Category'}
+              aria-label={'Business Category'}
               value={businessType}
               onChange={(e) => setBusinessType(e.target.value as any)}
               className="w-full p-2 border border-slate-200 rounded-lg bg-white"
             >
-              <option value="clothing">{isBn ? 'গার্মেন্টস / ক্লথিং' : 'Clothing'}</option>
-              <option value="grocery">{isBn ? 'মুদি / সুপার শপ' : 'Grocery'}</option>
-              <option value="electronics">{isBn ? 'ইলেকট্রনিক্স / গ্যাজেট' : 'Electronics'}</option>
-              <option value="pharmacy">{isBn ? 'ফার্মেসি' : 'Pharmacy'}</option>
-              <option value="general">{isBn ? 'সাধারণ রিটেইল' : 'General'}</option>
+              <option value="clothing">{'Clothing'}</option>
+              <option value="grocery">{'Grocery'}</option>
+              <option value="electronics">{'Electronics'}</option>
+              <option value="pharmacy">{'Pharmacy'}</option>
+              <option value="general">{'General'}</option>
             </select>
           </div>
         </div>
@@ -209,7 +209,7 @@ export const SettingsView: React.FC = () => {
             className="flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors"
           >
             <Save className="w-4 h-4" />
-            <span>{isBn ? 'পরিবর্তন সংরক্ষণ করুন' : 'Save Changes'}</span>
+            <span>{'Save Changes'}</span>
           </button>
         </div>
       </form>
@@ -217,13 +217,11 @@ export const SettingsView: React.FC = () => {
       {/* Backup, Restore & Reset Section */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4 text-xs">
         <h3 className="text-sm font-bold text-slate-900 pb-2 border-b">
-          {isBn ? '৩. ডেটা ব্যাকআপ ও রিস্টোর (Offline Ready Backup)' : '3. Data Backup & Recovery'}
+          {'3. Data Backup & Recovery'}
         </h3>
 
         <p className="text-slate-600">
-          {isBn
-            ? 'আপনার দোকানের পণ্য, স্টক, সেলস ও বাকির হিসাবের ব্যাকআপ ফাইল ডাউনলোড করে নিরাপদ স্থানে সংরক্ষণ করুন।'
-            : 'Download an encrypted JSON backup file of all products, stock, sales, and accounts.'}
+          {'Download an encrypted JSON backup file of all products, stock, sales, and accounts.'}
         </p>
 
         <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -232,12 +230,12 @@ export const SettingsView: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-semibold transition-colors shadow-xs"
           >
             <Download className="w-4 h-4" />
-            <span>{isBn ? 'ব্যাকআপ ডাউনলোড (JSON)' : 'Download Backup'}</span>
+            <span>{'Download Backup'}</span>
           </button>
 
           <label className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-semibold transition-colors border border-slate-200 cursor-pointer">
             <Upload className="w-4 h-4" />
-            <span>{isBn ? 'ফাইল থেকে রিস্টোর' : 'Restore from JSON'}</span>
+            <span>{'Restore from JSON'}</span>
             <input
               type="file"
               accept=".json"
@@ -248,15 +246,15 @@ export const SettingsView: React.FC = () => {
 
           <button
             onClick={() => {
-              if (confirm(isBn ? 'আপনি কি ডেমো ডেটা পুনরায় লোড করতে চান?' : 'Reset to initial demo data?')) {
+              if (confirm('Reset to initial demo data?')) {
                 resetToDemoData();
-                alert(isBn ? 'ডেমো ডেটা রিসেট সম্পন্ন হয়েছে।' : 'Demo data reset successfully.');
+                alert('Demo data reset successfully.');
               }
             }}
             className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-semibold transition-colors border border-rose-200 ml-auto"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>{isBn ? 'ডেমো ডেটায় রিসেট করুন' : 'Reset to Demo Data'}</span>
+            <span>{'Reset to Demo Data'}</span>
           </button>
         </div>
       </div>
@@ -265,21 +263,21 @@ export const SettingsView: React.FC = () => {
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-3 text-xs">
         <h3 className="text-sm font-bold text-slate-900 pb-2 border-b flex items-center gap-2">
           <Shield className="w-4 h-4 text-emerald-600" />
-          <span>{isBn ? '৪. ইউজার রোল ও অ্যাক্সেস কন্ট্রোল গাইড' : '4. Role & Permissions Guide'}</span>
+          <span>{'4. Role & Permissions Guide'}</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="p-3 bg-slate-50 rounded-lg border">
             <span className="font-bold text-slate-900 block">👑 Owner / Admin</span>
-            <p className="text-slate-600 mt-1">সবকিছু দেখতে ও নিয়ন্ত্রণ করতে পারবে (ড্যাশবোর্ড, সেলস, ক্রয়, প্রফিট, সেটিংস, ব্যাকআপ)।</p>
+            <p className="text-slate-600 mt-1">Full access to all modules (Dashboard, Sales, Purchases, Profits, Settings & Backup).</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg border">
-            <span className="font-bold text-slate-900 block">🧑💻 Salesman (বিক্রেতা)</span>
-            <p className="text-slate-600 mt-1">শুধুমাত্র POS, কাস্টমার ও বিক্রয় ইনভয়েস দেখতে পারবে। সংবেদনশীল লাভ-ক্ষতি ও হিসাব বন্ধ থাকবে।</p>
+            <span className="font-bold text-slate-900 block">🧑💻 Salesman</span>
+            <p className="text-slate-600 mt-1">Access to POS, Customers, and Invoices. Sensitive financial and report data is hidden.</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-lg border">
-            <span className="font-bold text-slate-900 block">📦 Storekeeper (স্টোর)</span>
-            <p className="text-slate-600 mt-1">পণ্য তালিকা, বর্তমান স্টক, স্টক সমন্বয় ও স্থানান্তর নিয়ন্ত্রণ করতে পারবে।</p>
+            <span className="font-bold text-slate-900 block">📦 Storekeeper</span>
+            <p className="text-slate-600 mt-1">Manage product catalog, stock adjustments, and inter-branch inventory transfers.</p>
           </div>
         </div>
       </div>

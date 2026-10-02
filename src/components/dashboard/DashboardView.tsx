@@ -36,7 +36,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenAddExpense,
 }) => {
   const { settings, products, sales, purchases, expenses, customers, suppliers, accounts, currentUserRole } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   // Filter Today's records (excluding voided and returned sales)
@@ -81,18 +81,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-              {isBn ? `শুভ দিন, ${settings.shopName}` : `Welcome, ${settings.shopName}`}
+              {`Welcome, ${settings.shopName}`}
             </h1>
             {isEasyMode && (
               <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
-                {isBn ? 'ইজি মোড' : 'Easy Mode'}
+                {'Easy Mode'}
               </span>
             )}
           </div>
           <p className="text-xs md:text-sm text-slate-600 mt-1">
-            {isBn
-              ? `আজকের তারিখ: ${formatDate(new Date().toISOString(), 'bn')} · ব্যবসায়িক সংক্ষিপ্ত চিত্র`
-              : `Today: ${formatDate(new Date().toISOString(), 'en')} · Business Overview`}
+            {`Today: ${formatDate(new Date().toISOString(), 'en')} · Business Overview`}
           </p>
         </div>
 
@@ -103,35 +101,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             className="flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors"
           >
             <ShoppingCart className="w-4 h-4" />
-            <span>{isBn ? 'নতুন বিক্রি' : 'New Sale'}</span>
+            <span>{'New Sale'}</span>
           </button>
           <button
             onClick={onOpenNewPurchase}
             className="flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200"
           >
             <ShoppingBag className="w-4 h-4 text-slate-600" />
-            <span>{isBn ? 'নতুন ক্রয়' : 'Purchase'}</span>
+            <span>{'Purchase'}</span>
           </button>
           <button
             onClick={onOpenAddProduct}
             className="flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200"
           >
             <Boxes className="w-4 h-4 text-slate-600" />
-            <span>{isBn ? 'পণ্য যোগ' : 'Add Product'}</span>
+            <span>{'Add Product'}</span>
           </button>
           <button
             onClick={onOpenAddCustomer}
             className="flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200"
           >
             <Users className="w-4 h-4 text-slate-600" />
-            <span>{isBn ? 'কাস্টমার' : 'Customer'}</span>
+            <span>{'Customer'}</span>
           </button>
           <button
             onClick={onOpenAddExpense}
             className="flex items-center gap-1.5 px-3 py-2 text-xs md:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200"
           >
             <Wallet className="w-4 h-4 text-slate-600" />
-            <span>{isBn ? 'খরচ' : 'Expense'}</span>
+            <span>{'Expense'}</span>
           </button>
         </div>
       </div>
@@ -141,7 +139,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Today's Sales */}
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'আজকের বিক্রি' : "Today's Sales"}</span>
+            <span>Today's Sales</span>
             <span className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
               <TrendingUp className="w-4 h-4" />
             </span>
@@ -150,14 +148,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {formatCurrency(todaySalesTotal, lang)}
           </div>
           <div className="mt-1 text-[11px] text-slate-600 flex items-center gap-1">
-            <span>{isBn ? `${toBnNumber(todaySales.length)} টি অর্ডার সম্পন্ন` : `${todaySales.length} orders completed`}</span>
+            <span>{`${todaySales.length} orders completed`}</span>
           </div>
         </div>
 
         {/* Today's Purchases */}
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'আজকের ক্রয় (Purchase)' : "Today's Purchases"}</span>
+            <span>Today's Purchases</span>
             <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
               <ShoppingBag className="w-4 h-4" />
             </span>
@@ -166,14 +164,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {formatCurrency(todayPurchasesTotal, lang)}
           </div>
           <div className="mt-1 text-[11px] text-slate-600">
-            {isBn ? `${toBnNumber(todayPurchases.length)} টি চালান` : `${todayPurchases.length} invoices`}
+            {`${todayPurchases.length} invoices`}
           </div>
         </div>
 
         {/* Today's Expense */}
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'আজকের খরচ' : "Today's Expenses"}</span>
+            <span>Today's Expenses</span>
             <span className="p-1.5 bg-amber-50 text-amber-600 rounded-lg">
               <ArrowDownRight className="w-4 h-4" />
             </span>
@@ -182,14 +180,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {formatCurrency(todayExpenseTotal, lang)}
           </div>
           <div className="mt-1 text-[11px] text-slate-600">
-            {isBn ? `${toBnNumber(todayExpenses.length)} টি এন্ট্রি` : `${todayExpenses.length} entries`}
+            {`${todayExpenses.length} entries`}
           </div>
         </div>
 
         {/* Today's Profit (Hidden for Salesman role) */}
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'আজকের আনুমানিক লাভ' : "Today's Net Profit"}</span>
+            <span>Today's Net Profit</span>
             <span className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
               <ArrowUpRight className="w-4 h-4" />
             </span>
@@ -198,7 +196,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {currentUserRole === 'salesman' ? '•••' : formatCurrency(todayNetProfit, lang)}
           </div>
           <div className="mt-1 text-[11px] text-slate-600">
-            {isBn ? 'বিক্রি - ক্রয়মূল্য - খরচ' : 'Revenue - COGS - Expenses'}
+            {'Revenue - COGS - Expenses'}
           </div>
         </div>
       </div>
@@ -211,14 +209,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs hover:border-slate-300 cursor-pointer transition-all"
         >
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'কাস্টমার বকেয়া (Due)' : 'Customer Due'}</span>
+            <span>{'Customer Due'}</span>
             <Users className="w-4 h-4 text-amber-600" />
           </div>
           <div className="mt-2 text-base md:text-xl font-bold text-amber-700 font-mono-num">
             {formatCurrency(totalCustomerDue, lang)}
           </div>
           <div className="mt-1 text-[11px] text-amber-600">
-            {isBn ? `${toBnNumber(dueCustomers.length)} জনের কাছে বাকি` : `${dueCustomers.length} customers due`}
+            {`${dueCustomers.length} customers due`}
           </div>
         </div>
 
@@ -228,14 +226,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs hover:border-slate-300 cursor-pointer transition-all"
         >
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'মহাজন/সাপ্লায়ার পাওনা' : 'Supplier Due'}</span>
+            <span>{'Supplier Due'}</span>
             <Building className="w-4 h-4 text-rose-600" />
           </div>
           <div className="mt-2 text-base md:text-xl font-bold text-rose-700 font-mono-num">
             {formatCurrency(totalSupplierDue, lang)}
           </div>
           <div className="mt-1 text-[11px] text-slate-600">
-            {isBn ? 'পরিশোধযোগ্য বকেয়া' : 'Payable liability'}
+            {'Payable liability'}
           </div>
         </div>
 
@@ -245,14 +243,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs hover:border-slate-300 cursor-pointer transition-all"
         >
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'বর্তমান স্টক মূল্য' : 'Stock Value'}</span>
+            <span>{'Stock Value'}</span>
             <Boxes className="w-4 h-4 text-slate-600" />
           </div>
           <div className="mt-2 text-base md:text-xl font-bold text-slate-900 font-mono-num">
             {formatCurrency(totalStockValue, lang)}
           </div>
           <div className="mt-1 text-[11px] text-slate-600">
-            {isBn ? `বিক্রয়মূল্য: ${formatCurrency(totalRetailStockValue, lang)}` : `Retail: ${formatCurrency(totalRetailStockValue, lang)}`}
+            {`Retail: ${formatCurrency(totalRetailStockValue, lang)}`}
           </div>
         </div>
 
@@ -262,14 +260,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs hover:border-slate-300 cursor-pointer transition-all"
         >
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>{isBn ? 'ক্যাশ ও ব্যাংক জমা' : 'Liquid Funds'}</span>
+            <span>{'Liquid Funds'}</span>
             <Wallet className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="mt-2 text-base md:text-xl font-bold text-emerald-700 font-mono-num">
             {formatCurrency(totalAccountBalance, lang)}
           </div>
           <div className="mt-1 text-[11px] text-slate-600">
-            {isBn ? 'ক্যাশ ড্রয়ার + বিকাশ + ব্যাংক' : 'Drawer + Mobile + Bank'}
+            {'Drawer + Mobile + Bank'}
           </div>
         </div>
       </div>
@@ -281,12 +279,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <h4 className="text-sm font-semibold text-amber-900">
-                {isBn ? 'স্টক সতর্কবার্তা (Stock Alert)' : 'Inventory Stock Alert'}
+                {'Inventory Stock Alert'}
               </h4>
               <p className="text-xs text-amber-800 mt-0.5">
-                {isBn
-                  ? `${toBnNumber(lowStockProducts.length)} টি পণ্যের স্টক কম এবং ${toBnNumber(outOfStockProducts.length)} টি পণ্য আউট অব স্টক রয়েছে। সময়মতো নতুন চালান রিসিভ করুন।`
-                  : `${lowStockProducts.length} items low in stock and ${outOfStockProducts.length} items out of stock.`}
+                {`${lowStockProducts.length} items low in stock and ${outOfStockProducts.length} items out of stock.`}
               </p>
             </div>
           </div>
@@ -294,7 +290,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onClick={() => onNavigate('inventory')}
             className="px-3 py-1.5 text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 rounded-lg border border-amber-300 self-start md:self-auto transition-colors whitespace-nowrap"
           >
-            {isBn ? 'স্টক দেখুন' : 'View Stock'}
+            {'View Stock'}
           </button>
         </div>
       )}
@@ -307,14 +303,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="flex items-center gap-2">
               <Receipt className="w-4 h-4 text-emerald-600" />
               <h3 className="text-sm font-semibold text-slate-900">
-                {isBn ? 'সাম্প্রতিক বিক্রয় ইনভয়েস' : 'Recent Invoices'}
+                {'Recent Invoices'}
               </h3>
             </div>
             <button
               onClick={() => onNavigate('sales')}
               className="text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline"
             >
-              {isBn ? 'সব দেখুন →' : 'View All →'}
+              {'View All →'}
             </button>
           </div>
 
@@ -322,12 +318,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
                 <tr>
-                  <th className="px-4 py-2.5 font-medium">{isBn ? 'ইনভয়েস নং' : 'Invoice #'}</th>
-                  <th className="px-4 py-2.5 font-medium">{isBn ? 'কাস্টমার' : 'Customer'}</th>
-                  <th className="px-4 py-2.5 font-medium">{isBn ? 'পেমেন্ট' : 'Payment'}</th>
-                  <th className="px-4 py-2.5 font-medium text-right">{isBn ? 'মোট টাকা' : 'Total'}</th>
-                  <th className="px-4 py-2.5 font-medium text-right">{isBn ? 'বাকি' : 'Due'}</th>
-                  <th className="px-4 py-2.5 font-medium">{isBn ? 'অবস্থা' : 'Status'}</th>
+                  <th className="px-4 py-2.5 font-medium">{'Invoice #'}</th>
+                  <th className="px-4 py-2.5 font-medium">{'Customer'}</th>
+                  <th className="px-4 py-2.5 font-medium">{'Payment'}</th>
+                  <th className="px-4 py-2.5 font-medium text-right">{'Total'}</th>
+                  <th className="px-4 py-2.5 font-medium text-right">{'Due'}</th>
+                  <th className="px-4 py-2.5 font-medium">{'Status'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -361,12 +357,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         }`}
                       >
                         {sale.status === 'paid'
-                          ? (isBn ? 'পরিশোধিত' : 'Paid')
+                          ? ('Paid')
                           : sale.status === 'due'
-                          ? (isBn ? 'সম্পূর্ণ বাকি' : 'Due')
+                          ? ('Due')
                           : sale.status === 'partial'
-                          ? (isBn ? 'আংশিক' : 'Partial')
-                          : (isBn ? 'ফেরত' : 'Returned')}
+                          ? ('Partial')
+                          : ('Returned')}
                       </span>
                     </td>
                   </tr>
@@ -383,14 +379,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center gap-2">
                 <Wallet className="w-4 h-4 text-emerald-600" />
                 <h3 className="text-sm font-semibold text-slate-900">
-                  {isBn ? 'অ্যাকাউন্ট ব্যালেন্স' : 'Account Balances'}
+                  {'Account Balances'}
                 </h3>
               </div>
               <button
                 onClick={() => onNavigate('accounts')}
                 className="text-xs font-medium text-emerald-700 hover:underline"
               >
-                {isBn ? 'বিস্তারিত' : 'Details'}
+                {'Details'}
               </button>
             </div>
 
@@ -417,7 +413,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="pt-3 border-t border-slate-100 mt-4">
             <div className="flex items-center justify-between text-xs font-semibold text-slate-900">
-              <span>{isBn ? 'সর্বমোট নগদ স্থিতি:' : 'Total Liquid Balance:'}</span>
+              <span>{'Total Liquid Balance:'}</span>
               <span className="font-mono-num text-emerald-700 text-base">
                 {formatCurrency(totalAccountBalance, lang)}
               </span>

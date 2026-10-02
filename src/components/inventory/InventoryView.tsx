@@ -15,7 +15,7 @@ import {
 
 export const InventoryView: React.FC = () => {
   const { products, branches, stockMovements, adjustStock, transferStock, settings, activeBranchId } = useApp();
-  const isBn = settings.language === 'bn';
+  const isBn = false;
   const lang = settings.language;
 
   const [activeTab, setActiveTab] = useState<'stock' | 'movements'>('stock');
@@ -63,7 +63,7 @@ export const InventoryView: React.FC = () => {
   const handleTransferSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!tfProductId || tfQty === '' || Number(tfQty) <= 0 || fromBranch === toBranch) {
-      alert(isBn ? 'অনুগ্রহ করে সঠিক শাখা ও পরিমাণ নির্বাচন করুন!' : 'Invalid branch or quantity selected!');
+      alert('Invalid branch or quantity selected!');
       return;
     }
     transferStock(tfProductId, Number(tfQty), fromBranch, toBranch, tfNote);
@@ -95,42 +95,42 @@ export const InventoryView: React.FC = () => {
       {/* Top Header & Valuation Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'মোট স্টক আইটেম' : 'Total Stock Units'}</span>
+          <span className="text-xs text-slate-500 block">{'Total Stock Units'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-slate-900 mt-1 block">
             {toBnNumber(totalStockUnits)}
           </span>
           <span className="text-[11px] text-slate-500 mt-0.5 block">
-            {toBnNumber(products.length)} {isBn ? 'টি অনন্য পণ্য' : 'unique products'}
+            {toBnNumber(products.length)} {'unique products'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'মোট ক্রয়মূল্য (Cost Value)' : 'Total Cost Value'}</span>
+          <span className="text-xs text-slate-500 block">{'Total Cost Value'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-slate-900 mt-1 block">
             {formatCurrency(totalCostValuation, lang)}
           </span>
           <span className="text-[11px] text-slate-500 mt-0.5 block">
-            {isBn ? 'দোকানে রক্ষিত মোট মূলধন' : 'Invested inventory capital'}
+            {'Invested inventory capital'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'মোট বিক্রয়মূল্য (Retail Value)' : 'Total Retail Value'}</span>
+          <span className="text-xs text-slate-500 block">{'Total Retail Value'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-emerald-700 mt-1 block">
             {formatCurrency(totalRetailValuation, lang)}
           </span>
           <span className="text-[11px] text-emerald-600 mt-0.5 block">
-            {isBn ? 'বিক্রি সম্পন্ন হলে সম্ভাব্য আয়' : 'Potential sales turnover'}
+            {'Potential sales turnover'}
           </span>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
-          <span className="text-xs text-slate-500 block">{isBn ? 'সম্ভাব্য মোট লাভ' : 'Potential Margin'}</span>
+          <span className="text-xs text-slate-500 block">{'Potential Margin'}</span>
           <span className="text-xl md:text-2xl font-bold font-mono-num text-emerald-600 mt-1 block">
             {formatCurrency(potentialProfit, lang)}
           </span>
           <span className="text-[11px] text-slate-500 mt-0.5 block">
-            {isBn ? 'রিটেল মূল্য - ক্রয়মূল্য' : 'Gross expected margin'}
+            {'Gross expected margin'}
           </span>
         </div>
       </div>
@@ -146,7 +146,7 @@ export const InventoryView: React.FC = () => {
                 activeTab === 'stock' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
-              {isBn ? 'স্টক তালিকা' : 'Inventory Table'}
+              {'Inventory Table'}
             </button>
             <button
               onClick={() => setActiveTab('movements')}
@@ -154,7 +154,7 @@ export const InventoryView: React.FC = () => {
                 activeTab === 'movements' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
               }`}
             >
-              {isBn ? 'স্টক অডিট ও হিস্ট্রি' : 'Stock Movements'}
+              {'Stock Movements'}
             </button>
           </div>
 
@@ -166,7 +166,7 @@ export const InventoryView: React.FC = () => {
                   filterType === 'all' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200'
                 }`}
               >
-                {isBn ? 'সব' : 'All'}
+                {'All'}
               </button>
               <button
                 onClick={() => setFilterType('low')}
@@ -174,7 +174,7 @@ export const InventoryView: React.FC = () => {
                   filterType === 'low' ? 'bg-amber-600 text-white border-amber-600' : 'bg-white text-amber-700 border-amber-200'
                 }`}
               >
-                <span>{isBn ? 'কম স্টক' : 'Low Stock'}</span>
+                <span>{'Low Stock'}</span>
                 <span className="font-bold">({toBnNumber(lowStockItems.length)})</span>
               </button>
               <button
@@ -183,7 +183,7 @@ export const InventoryView: React.FC = () => {
                   filterType === 'out' ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-rose-700 border-rose-200'
                 }`}
               >
-                <span>{isBn ? 'স্টক শেষ' : 'Out'}</span>
+                <span>{'Out'}</span>
                 <span className="font-bold">({toBnNumber(outOfStockItems.length)})</span>
               </button>
             </div>
@@ -197,21 +197,21 @@ export const InventoryView: React.FC = () => {
             className="flex items-center gap-1.5 px-3 py-1.5 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 font-semibold transition-colors"
           >
             <ArrowDownUp className="w-3.5 h-3.5 text-slate-600" />
-            <span>{isBn ? 'স্টক সমন্বয় (Adjustment)' : 'Stock Adjust'}</span>
+            <span>{'Stock Adjust'}</span>
           </button>
           <button
             onClick={() => setShowTransferModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 font-semibold transition-colors"
           >
             <GitFork className="w-3.5 h-3.5 text-slate-600" />
-            <span>{isBn ? 'শাখা ট্রান্সফার' : 'Branch Transfer'}</span>
+            <span>{'Branch Transfer'}</span>
           </button>
           <button
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 px-3 py-1.5 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 font-semibold transition-colors"
           >
             <Download className="w-3.5 h-3.5 text-slate-600" />
-            <span>{isBn ? 'CSV ডাউনলোড' : 'Export'}</span>
+            <span>{'Export'}</span>
           </button>
         </div>
       </div>
@@ -223,13 +223,13 @@ export const InventoryView: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">{isBn ? 'পণ্য' : 'Product'}</th>
-                  <th className="px-4 py-3 font-semibold">{isBn ? 'কোড' : 'Code'}</th>
-                  <th className="px-4 py-3 font-semibold text-center">{isBn ? 'বর্তমান স্টক' : 'Current Stock'}</th>
-                  <th className="px-4 py-3 font-semibold text-center">{isBn ? 'অ্যালার্ট লিমিট' : 'Min Alert'}</th>
-                  <th className="px-4 py-3 font-semibold text-right">{isBn ? 'ক্রয়মূল্য' : 'Cost'}</th>
-                  <th className="px-4 py-3 font-semibold text-right">{isBn ? 'মোট ইনভেন্টরি মূল্য' : 'Cost Valuation'}</th>
-                  <th className="px-4 py-3 font-semibold">{isBn ? 'অবস্থা' : 'Status'}</th>
+                  <th className="px-4 py-3 font-semibold">{'Product'}</th>
+                  <th className="px-4 py-3 font-semibold">{'Code'}</th>
+                  <th className="px-4 py-3 font-semibold text-center">{'Current Stock'}</th>
+                  <th className="px-4 py-3 font-semibold text-center">{'Min Alert'}</th>
+                  <th className="px-4 py-3 font-semibold text-right">{'Cost'}</th>
+                  <th className="px-4 py-3 font-semibold text-right">{'Cost Valuation'}</th>
+                  <th className="px-4 py-3 font-semibold">{'Status'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -271,7 +271,7 @@ export const InventoryView: React.FC = () => {
                               : 'bg-emerald-50 text-emerald-700'
                           }`}
                         >
-                          {isOut ? (isBn ? 'স্টক শেষ' : 'Out of Stock') : isLow ? (isBn ? 'কম স্টক' : 'Low Stock') : (isBn ? 'স্বাভাবিক' : 'Normal')}
+                          {isOut ? ('Out of Stock') : isLow ? ('Low Stock') : ('Normal')}
                         </span>
                       </td>
                     </tr>
@@ -288,12 +288,12 @@ export const InventoryView: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">{isBn ? 'তারিখ' : 'Date'}</th>
-                  <th className="px-4 py-3 font-semibold">{isBn ? 'পণ্য' : 'Product'}</th>
-                  <th className="px-4 py-3 font-semibold">{isBn ? 'মুভমেন্ট টাইপ' : 'Type'}</th>
-                  <th className="px-4 py-3 font-semibold text-center">{isBn ? 'পরিমাণ (+/-)' : 'Quantity'}</th>
-                  <th className="px-4 py-3 font-semibold text-center">{isBn ? 'নতুন স্টক' : 'Balance'}</th>
-                  <th className="px-4 py-3 font-semibold">{isBn ? 'রেফারেন্স / নোট' : 'Reference & Note'}</th>
+                  <th className="px-4 py-3 font-semibold">{'Date'}</th>
+                  <th className="px-4 py-3 font-semibold">{'Product'}</th>
+                  <th className="px-4 py-3 font-semibold">{'Type'}</th>
+                  <th className="px-4 py-3 font-semibold text-center">{'Quantity'}</th>
+                  <th className="px-4 py-3 font-semibold text-center">{'Balance'}</th>
+                  <th className="px-4 py-3 font-semibold">{'Reference & Note'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -336,7 +336,7 @@ export const InventoryView: React.FC = () => {
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                 <ArrowDownUp className="w-4 h-4 text-emerald-600" />
-                <span>{isBn ? 'স্টক সমন্বয় (Stock Adjustment)' : 'Stock Adjustment'}</span>
+                <span>{'Stock Adjustment'}</span>
               </h3>
               <button
                 type="button"
@@ -349,16 +349,16 @@ export const InventoryView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'পণ্য নির্বাচন করুন *' : 'Select Product *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Select Product *'}</label>
                 <select
-                  aria-label={isBn ? 'পণ্য নির্বাচন করুন' : 'Select Product'}
+                  aria-label={'Select Product'}
                   value={adjProductId}
                   onChange={(e) => setAdjProductId(e.target.value)}
                   className="w-full p-2 border border-slate-200 rounded-lg bg-white"
                 >
                   {products.map(p => (
                     <option key={p.id} value={p.id}>
-                      {p.name} (বর্তমান স্টক: {p.currentStock} {p.unit})
+                      {p.name} (Current Stock: {p.currentStock} {p.unit})
                     </option>
                   ))}
                 </select>
@@ -366,41 +366,41 @@ export const InventoryView: React.FC = () => {
 
               <div>
                 <label className="block font-medium text-slate-700 mb-1">
-                  {isBn ? 'সমন্বয়কৃত পরিমাণ (কমাতে -২, বাড়াতে +২ দিন) *' : 'Adjustment Qty (+ or -) *'}
+                  {'Adjustment Qty (+ or -) *'}
                 </label>
                 <input
                   type="number"
                   required
                   value={adjQty}
                   onChange={(e) => setAdjQty(e.target.value === '' ? '' : Number(e.target.value))}
-                  placeholder="e.g. -2 বা 5"
+                  placeholder="e.g. -2 or 5"
                   className="w-full p-2 border border-slate-200 rounded-lg font-mono-num"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'সমন্বয়ের কারণ *' : 'Reason *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Reason *'}</label>
                 <select
-                  aria-label={isBn ? 'সমন্বয়ের কারণ' : 'Reason'}
+                  aria-label={'Reason'}
                   value={adjReason}
                   onChange={(e) => setAdjReason(e.target.value as any)}
                   className="w-full p-2 border border-slate-200 rounded-lg bg-white capitalize"
                 >
-                  <option value="damaged">{isBn ? 'নষ্ট / ড্যামেজ প্রোডাক্ট (Damaged)' : 'Damaged'}</option>
-                  <option value="expired">{isBn ? 'মেয়াদোত্তীর্ণ (Expired)' : 'Expired'}</option>
-                  <option value="lost">{isBn ? 'হারিয়ে গেছে (Lost)' : 'Lost'}</option>
-                  <option value="inventory_correction">{isBn ? 'গণনায় ভুল / হিসেব মেলানো' : 'Inventory Correction'}</option>
-                  <option value="sample">{isBn ? 'স্যাম্পল বিতরণ' : 'Sample'}</option>
+                  <option value="damaged">{'Damaged'}</option>
+                  <option value="expired">{'Expired'}</option>
+                  <option value="lost">{'Lost'}</option>
+                  <option value="inventory_correction">{'Inventory Correction'}</option>
+                  <option value="sample">{'Sample'}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'নোট / মন্তব্য' : 'Note'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Note'}</label>
                 <input
                   type="text"
                   value={adjNote}
                   onChange={(e) => setAdjNote(e.target.value)}
-                  placeholder="বিস্তারিত কারণ লিখুন"
+                  placeholder="Enter reason in detail"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
@@ -412,13 +412,13 @@ export const InventoryView: React.FC = () => {
                 onClick={() => setShowAdjustmentModal(false)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
               >
-                {isBn ? 'সমন্বয় সম্পন্ন করুন' : 'Confirm Adjustment'}
+                {'Confirm Adjustment'}
               </button>
             </div>
           </form>
@@ -435,7 +435,7 @@ export const InventoryView: React.FC = () => {
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                 <GitFork className="w-4 h-4 text-emerald-600" />
-                <span>{isBn ? 'ব্রাঞ্চ স্টক ট্রান্সফার' : 'Branch Stock Transfer'}</span>
+                <span>{'Branch Stock Transfer'}</span>
               </h3>
               <button
                 type="button"
@@ -448,16 +448,16 @@ export const InventoryView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'পণ্য নির্বাচন *' : 'Product *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Product *'}</label>
                 <select
-                  aria-label={isBn ? 'পণ্য নির্বাচন' : 'Product'}
+                  aria-label={'Product'}
                   value={tfProductId}
                   onChange={(e) => setTfProductId(e.target.value)}
                   className="w-full p-2 border border-slate-200 rounded-lg bg-white"
                 >
                   {products.map(p => (
                     <option key={p.id} value={p.id}>
-                      {p.name} (মজুদ: {p.currentStock} {p.unit})
+                      {p.name} (Stock: {p.currentStock} {p.unit})
                     </option>
                   ))}
                 </select>
@@ -465,9 +465,9 @@ export const InventoryView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'প্রেরক শাখা' : 'From Branch'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'From Branch'}</label>
                   <select
-                    aria-label={isBn ? 'প্রেরক শাখা' : 'From Branch'}
+                    aria-label={'From Branch'}
                     value={fromBranch}
                     onChange={(e) => setFromBranch(e.target.value)}
                     className="w-full p-2 border border-slate-200 rounded-lg bg-white"
@@ -480,9 +480,9 @@ export const InventoryView: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">{isBn ? 'প্রাপক শাখা' : 'To Branch'}</label>
+                  <label className="block font-medium text-slate-700 mb-1">{'To Branch'}</label>
                   <select
-                    aria-label={isBn ? 'প্রাপক শাখা' : 'To Branch'}
+                    aria-label={'To Branch'}
                     value={toBranch}
                     onChange={(e) => setToBranch(e.target.value)}
                     className="w-full p-2 border border-slate-200 rounded-lg bg-white"
@@ -497,7 +497,7 @@ export const InventoryView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'স্থানান্তরের পরিমাণ *' : 'Transfer Qty *'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Transfer Qty *'}</label>
                 <input
                   type="number"
                   required
@@ -510,12 +510,12 @@ export const InventoryView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">{isBn ? 'নোট' : 'Note'}</label>
+                <label className="block font-medium text-slate-700 mb-1">{'Note'}</label>
                 <input
                   type="text"
                   value={tfNote}
                   onChange={(e) => setTfNote(e.target.value)}
-                  placeholder="শাখা চাহিদামাফিক স্টক পাঠানো হলো"
+                  placeholder="Stock transfer per branch request"
                   className="w-full p-2 border border-slate-200 rounded-lg"
                 />
               </div>
@@ -527,13 +527,13 @@ export const InventoryView: React.FC = () => {
                 onClick={() => setShowTransferModal(false)}
                 className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
               >
-                {isBn ? 'বাতিল' : 'Cancel'}
+                {'Cancel'}
               </button>
               <button
                 type="submit"
                 className="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg"
               >
-                {isBn ? 'ট্রান্সফার নিশ্চিত করুন' : 'Confirm Transfer'}
+                {'Confirm Transfer'}
               </button>
             </div>
           </form>

@@ -141,7 +141,7 @@ const MainLayout: React.FC = () => {
           className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50"
         >
           {isSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          <span>মেনু ও ন্যাভিগেশন</span>
+          <span>Menu & Navigation</span>
         </button>
         <span className="text-xs font-semibold text-slate-800 capitalize">
           {activeTab}
