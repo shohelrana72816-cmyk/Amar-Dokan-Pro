@@ -11,10 +11,12 @@ import {
   Building,
   CheckCircle2,
   FileCode,
+  Database,
+  CloudUpload,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
-  const { settings, updateSettings, backupData, restoreData, resetToDemoData } = useApp();
+  const { settings, updateSettings, backupData, restoreData, resetToDemoData, user, activeBusinessId, migrateLegacyData, isMigrated } = useApp();
   const isBn = false;
 
   const [shopName, setShopName] = useState(settings.shopName);
@@ -255,6 +257,41 @@ export const SettingsView: React.FC = () => {
           >
             <RotateCcw className="w-4 h-4" />
             <span>{'Reset to Demo Data'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Cloud Database & Legacy Data Migration Section */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4 text-xs">
+        <h3 className="text-sm font-bold text-slate-900 pb-2 border-b flex items-center gap-2">
+          <Database className="w-4 h-4 text-emerald-600" />
+          <span>{'Cloud Database & Safe Migration'}</span>
+        </h3>
+
+        <div className="space-y-2 text-slate-600">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-800">Account:</span>
+            <span>{user ? user.email : 'Local Session'}</span>
+          </div>
+          {activeBusinessId && (
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-800">Business ID:</span>
+              <span className="font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded">{activeBusinessId}</span>
+            </div>
+          )}
+          <p>
+            If you have existing offline store items, you can safely sync them to your cloud business database with zero data loss.
+          </p>
+        </div>
+
+        <div className="pt-2">
+          <button
+            onClick={() => migrateLegacyData()}
+            disabled={isMigrated}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors shadow-xs disabled:opacity-60 cursor-pointer"
+          >
+            <CloudUpload className="w-4 h-4" />
+            <span>{isMigrated ? 'Data Synced with Cloud' : 'Sync Local Store to Cloud Database'}</span>
           </button>
         </div>
       </div>

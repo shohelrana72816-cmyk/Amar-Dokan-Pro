@@ -1,14 +1,15 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const rawUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+// Strip trailing /rest/v1 or slashes to ensure standard Supabase project origin URL
+const supabaseUrl = rawUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
-  supabaseUrl.trim() !== '' &&
   supabaseUrl.startsWith('https://') &&
   supabaseAnonKey &&
-  supabaseAnonKey.trim() !== ''
+  supabaseAnonKey !== ''
 );
 
 // Fallback dummy URL to prevent createClient constructor crash when not yet configured

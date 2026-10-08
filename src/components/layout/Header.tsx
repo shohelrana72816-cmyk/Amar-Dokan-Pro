@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { UserRole } from '../../types';
-import { Store, ShoppingCart, Globe, Shield, Sparkles, Building2 } from 'lucide-react';
+import { Store, ShoppingCart, Globe, Shield, Sparkles, Building2, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   onOpenPOS: () => void;
@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenPOS, activeTab }) => {
-  const { settings, updateSettings, currentUserRole, setCurrentUserRole, branches, activeBranchId, setActiveBranchId } = useApp();
+  const { settings, updateSettings, currentUserRole, setCurrentUserRole, branches, activeBranchId, setActiveBranchId, user, signOut } = useApp();
   const isBn = settings.language === 'bn';
 
   const roleLabels: Record<UserRole, string> = {
@@ -109,6 +109,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPOS, activeTab }) => {
           <ShoppingCart className="w-4 h-4" />
           <span>New Sale (POS)</span>
         </button>
+
+        {/* User Sign Out */}
+        {user && (
+          <button
+            onClick={() => signOut()}
+            title={`Signed in as ${user.email}. Click to Sign Out`}
+            className="flex items-center gap-1.5 p-2 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden xl:inline">Logout</span>
+          </button>
+        )}
       </div>
     </header>
   );

@@ -15,10 +15,12 @@ import { ReportsView } from './components/reports/ReportsView';
 import { EmployeesView } from './components/employees/EmployeesView';
 import { BranchesView } from './components/branches/BranchesView';
 import { SettingsView } from './components/settings/SettingsView';
-import { Menu, X } from 'lucide-react';
+import { AuthModal } from './components/auth/AuthModal';
+import { isSupabaseConfigured } from './lib/supabase';
+import { Menu, X, Loader2, Store } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
-  const { canAccess, currentUserRole } = useApp();
+  const { canAccess, currentUserRole, user, isLoading } = useApp();
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
@@ -51,6 +53,27 @@ const MainLayout: React.FC = () => {
       setActiveTab('dashboard');
     }
   }, [currentUserRole, activeTab, canAccess]);
+
+  // If loading session and initial data, display high-fidelity splash loading screen
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 text-white">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-600 flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20">
+          <Store className="w-8 h-8 text-white animate-pulse" />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight mb-2">Amar Dokan Pro</h1>
+        <div className="flex items-center gap-2 text-sm text-emerald-400 font-medium">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Connecting to Supabase...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // If Supabase is configured and user is unauthenticated, show Auth view
+  if (isSupabaseConfigured && !user) {
+    return <AuthModal onSuccess={() => {}} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
