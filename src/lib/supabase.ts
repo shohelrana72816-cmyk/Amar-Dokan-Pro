@@ -1,24 +1,26 @@
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const rawUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
-// Strip trailing /rest/v1 or slashes to ensure standard Supabase project origin URL
-const supabaseUrl = rawUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
-const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+const supabaseUrl = rawUrl
+  .replace(/\/rest\/v1\/?$/, '')
+  .replace(/\/+$/, '');
 
-export const isSupabaseConfigured = Boolean(
-  supabaseUrl &&
-  supabaseUrl.startsWith('https://') &&
-  supabaseAnonKey &&
-  supabaseAnonKey !== ''
-);
+const supabaseAnonKey = (
+  import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+).trim();
 
-// Fallback dummy URL to prevent createClient constructor crash when not yet configured
-const dummyUrl = 'https://placeholder.supabase.co';
-const dummyAnonKey = 'placeholder-anon-key';
+export const isSupabaseConfigured =
+  /^https:\/\/[a-zA-Z0-9-]+\.supabase\.co$/.test(supabaseUrl) &&
+  supabaseAnonKey.length > 0;
 
 export const supabase: SupabaseClient = createClient(
-  isSupabaseConfigured ? supabaseUrl : dummyUrl,
-  isSupabaseConfigured ? supabaseAnonKey : dummyAnonKey,
+  isSupabaseConfigured
+    ? supabaseUrl
+    : 'https://placeholder.supabase.co',
+  isSupabaseConfigured
+    ? supabaseAnonKey
+    : 'placeholder-anon-key',
   {
     auth: {
       persistSession: true,
