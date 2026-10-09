@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/layout/Header';
@@ -21,18 +22,17 @@ import { Menu, X, Loader2, Store } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const { canAccess, currentUserRole, user, isLoading } = useApp();
+
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
-  // Quick Action Modal Triggers
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [isNewPurchaseOpen, setIsNewPurchaseOpen] = useState(false);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
 
-  // Validate active tab with current user role
   useEffect(() => {
-    const tabToModuleMap: Record<string, any> = {
+    const tabToModuleMap: Record<string, string> = {
       dashboard: 'dashboard',
       pos: 'pos',
       sales: 'pos',
@@ -49,29 +49,59 @@ const MainLayout: React.FC = () => {
     };
 
     const targetModule = tabToModuleMap[activeTab] || 'dashboard';
+
     if (!canAccess(targetModule)) {
       setActiveTab('dashboard');
     }
   }, [currentUserRole, activeTab, canAccess]);
 
-  // If loading session and initial data, display high-fidelity splash loading screen
+  // Show loading screen while the app checks the saved session.
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 text-white">
         <div className="w-16 h-16 rounded-2xl bg-emerald-600 flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20">
           <Store className="w-8 h-8 text-white animate-pulse" />
         </div>
-        <h1 className="text-xl font-bold tracking-tight mb-2">Amar Dokan Pro</h1>
+
+        <h1 className="text-xl font-bold tracking-tight mb-2">
+          Amar Dokan Pro
+        </h1>
+
         <div className="flex items-center gap-2 text-sm text-emerald-400 font-medium">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Connecting to Supabase...</span>
+          <span>Checking login session...</span>
         </div>
       </div>
     );
   }
 
-  // If Supabase is configured and user is unauthenticated, show Auth view
-  if (isSupabaseConfigured && !user) {
+  // Do not allow access to the dashboard if Supabase is not configured.
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-white">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-600 flex items-center justify-center mb-4">
+          <Store className="w-8 h-8 text-white" />
+        </div>
+
+        <h1 className="text-xl font-bold mb-3">
+          Amar Dokan Pro
+        </h1>
+
+        <p className="text-center text-slate-300 mb-3">
+          Supabase configuration is missing or invalid.
+        </p>
+
+        <p className="max-w-lg text-center text-sm text-slate-400">
+          Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+          in your environment variables. Then rebuild and redeploy
+          the application.
+        </p>
+      </div>
+    );
+  }
+
+  // Require authentication before showing any application module.
+  if (!user) {
     return <AuthModal onSuccess={() => {}} />;
   }
 
@@ -100,10 +130,13 @@ const MainLayout: React.FC = () => {
             }}
           />
         );
+
       case 'pos':
         return <POSView />;
+
       case 'sales':
         return <SalesHistoryView />;
+
       case 'products':
         return (
           <ProductsView
@@ -111,8 +144,10 @@ const MainLayout: React.FC = () => {
             onCloseAddModal={() => setIsAddProductOpen(false)}
           />
         );
+
       case 'inventory':
         return <InventoryView />;
+
       case 'purchases':
         return (
           <PurchasesView
@@ -120,6 +155,7 @@ const MainLayout: React.FC = () => {
             onCloseAddModal={() => setIsNewPurchaseOpen(false)}
           />
         );
+
       case 'customers':
         return (
           <CustomersView
@@ -127,8 +163,10 @@ const MainLayout: React.FC = () => {
             onCloseAddModal={() => setIsAddCustomerOpen(false)}
           />
         );
+
       case 'suppliers':
         return <SuppliersView />;
+
       case 'accounts':
         return (
           <AccountsView
@@ -136,43 +174,61 @@ const MainLayout: React.FC = () => {
             onCloseExpenseModal={() => setIsAddExpenseOpen(false)}
           />
         );
+
       case 'reports':
         return <ReportsView />;
+
       case 'employees':
         return <EmployeesView />;
+
       case 'branches':
         return <BranchesView />;
+
       case 'settings':
         return <SettingsView />;
+
       default:
-        return <DashboardView onNavigate={setActiveTab} onOpenPOS={() => setActiveTab('pos')} onOpenAddProduct={() => {}} onOpenAddCustomer={() => {}} onOpenNewPurchase={() => {}} onOpenAddExpense={() => {}} />;
+        return (
+          <DashboardView
+            onNavigate={setActiveTab}
+            onOpenPOS={() => setActiveTab('pos')}
+            onOpenAddProduct={() => {}}
+            onOpenAddCustomer={() => {}}
+            onOpenNewPurchase={() => {}}
+            onOpenAddExpense={() => {}}
+          />
+        );
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
-      {/* Top Header */}
       <Header
         onOpenPOS={() => setActiveTab('pos')}
         activeTab={activeTab}
       />
 
-      {/* Mobile Sidebar Toggle Button */}
       <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between">
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50"
+          aria-label={isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
         >
-          {isSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          {isSidebarOpen ? (
+            <X className="w-4 h-4" />
+          ) : (
+            <Menu className="w-4 h-4" />
+          )}
+
           <span>Menu & Navigation</span>
         </button>
+
         <span className="text-xs font-semibold text-slate-800 capitalize">
           {activeTab}
         </span>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -180,7 +236,6 @@ const MainLayout: React.FC = () => {
           setIsOpen={setIsSidebarOpen}
         />
 
-        {/* Main Content Viewport */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-[1600px] mx-auto">
             {renderContent()}
